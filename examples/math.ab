@@ -1,0 +1,5 @@
+REPORT ZMATH.
+
+data sum type i.
+sum = 0.
+sum = sum + : 1, 2, 3, 4.

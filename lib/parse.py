@@ -1,9 +1,6 @@
 
 
 SINGLE_CHAR_LEXEMES = '.,:'
-KEYWORDS = {'report', 'write', 'skip', 'uline', 'data', 'move',
-    'constants', 'types', 'message'}
-TYPES = {'x', 'c', 'n', 'd', 't', 'i', 'f', 'p', 'string', 'xstring'}
 
 
 def lex(text, verbose=False):
@@ -75,12 +72,4 @@ def to_stmts(lexemes):
         raise ValueError("Missing '.' at end of statement")
 
     return stmts
-
-
-class Parser:
-
-    def __init__(self, text):
-        self.text = text
-        self.lexemes = lex(text)
-        self.stmts = to_stmts(self.lexemes)
 
