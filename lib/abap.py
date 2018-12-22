@@ -50,35 +50,28 @@ def lex(text, verbose=False):
 
 def to_stmts(lexemes):
     stmts = []
-    stmt_lexemes = []
-    keyword = ''
-    is_chained = False
+    stmt = []
+    chain_prefix = []
 
     for i, lexeme in enumerate(lexemes):
-        if not keyword:
-            keyword = lexeme.lower()
-            if keyword not in KEYWORDS:
-                raise ValueError("Invalid keyword: {}".format(keyword))
-        elif lexeme is ':':
-            if stmt_lexemes:
+        if lexeme is ':':
+            if chain_prefix:
                 raise ValueError("Unexpected ':' "
-                    "(must immediately follow keyword)")
-            is_chained = True
+                    "(can't have more than 1 in same statement)")
+            chain_prefix = stmt
+            stmt = []
         elif lexeme is ',' or lexeme is '.':
-            if lexeme is ',' and not is_chained:
+            if lexeme is ',' and not chain_prefix:
                 raise ValueError("Unexpected ',' "
-                    "(keyword must be followed by ':' to start a "
-                    "chained statement)")
-            stmt = [keyword] + stmt_lexemes
-            stmts.append(stmt)
-            del stmt
-            stmt_lexemes = []
+                    "(need to start a chained statement with ':')")
+            stmts.append(chain_prefix + stmt)
+            stmt = []
             if lexeme is '.':
-                keyword = ''
-                is_chained = False
-        else: stmt_lexemes.append(lexeme)
+                chain_prefix = []
+        elif lexeme.startswith('\''): stmt.append(lexeme)
+        else: stmt.append(lexeme.lower())
 
-    if stmt_lexemes:
+    if chain_prefix or stmt:
         raise ValueError("Missing '.' at end of statement")
 
     return stmts
