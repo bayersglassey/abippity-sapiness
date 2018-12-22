@@ -12,27 +12,27 @@ def lex(text, verbose=False):
         if verbose: print('{}'.format(repr(c)))
         while True:
             if verbose: print('  {}'.format(state))
-            if state is 'newline':
-                if c is '*': state = 'eat_comment'
+            if state == 'newline':
+                if c == '*': state = 'eat_comment'
                 else: state = 'eat_whitespace'; continue
-            elif state is 'eat_comment':
-                if c is '\n': state = 'newline'
+            elif state == 'eat_comment':
+                if c == '\n': state = 'newline'
                 else: pass
-            elif state is 'eat_whitespace':
-                if c is '\n': state = 'newline'
+            elif state == 'eat_whitespace':
+                if c == '\n': state = 'newline'
                 elif c.isspace(): pass
                 elif c in SINGLE_CHAR_LEXEMES: lexemes += c
-                elif c is '"': state = 'eat_comment'
-                elif c is '\'': lexeme += c; state = 'eat_string'
+                elif c == '"': state = 'eat_comment'
+                elif c == '\'': lexeme += c; state = 'eat_string'
                 else: state = 'eat_word'; continue
-            elif state is 'eat_string':
-                if c is '\'':
+            elif state == 'eat_string':
+                if c == '\'':
                     lexemes.append(lexeme)
                     lexeme = ''
                     state = 'eat_whitespace'
                 else:
                     lexeme += c
-            elif state is 'eat_word':
+            elif state == 'eat_word':
                 if c.isspace() or c in SINGLE_CHAR_LEXEMES:
                     lexemes.append(lexeme)
                     lexeme = ''
@@ -51,19 +51,19 @@ def to_stmts(lexemes):
     chain_prefix = []
 
     for i, lexeme in enumerate(lexemes):
-        if lexeme is ':':
+        if lexeme == ':':
             if chain_prefix:
                 raise ValueError("Unexpected ':' "
                     "(can't have more than 1 in same statement)")
             chain_prefix = stmt
             stmt = []
-        elif lexeme is ',' or lexeme is '.':
-            if lexeme is ',' and not chain_prefix:
+        elif lexeme == ',' or lexeme == '.':
+            if lexeme == ',' and not chain_prefix:
                 raise ValueError("Unexpected ',' "
                     "(need to start a chained statement with ':')")
             stmts.append(chain_prefix + stmt)
             stmt = []
-            if lexeme is '.':
+            if lexeme == '.':
                 chain_prefix = []
         elif lexeme.startswith('\''): stmt.append(lexeme)
         else: stmt.append(lexeme.lower())
