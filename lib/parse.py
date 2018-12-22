@@ -1,12 +1,15 @@
 
 
-SINGLE_CHAR_LEXEMES = '.,:'
 
-
-def lex(text, verbose=False):
+def lex(text, verbose=False, syntax=False):
     state = 'newline'
     lexemes = []
     lexeme = ''
+
+    if syntax:
+        SINGLE_CHAR_LEXEMES = '()[]{}|'
+    else:
+        SINGLE_CHAR_LEXEMES = '.,:'
 
     for i, c in enumerate(text):
         if verbose: print('{}'.format(repr(c)))
@@ -45,7 +48,7 @@ def lex(text, verbose=False):
     return lexemes
 
 
-def to_stmts(lexemes):
+def to_stmts(lexemes, syntax=False):
     stmts = []
     stmt = []
     chain_prefix = []
@@ -66,10 +69,24 @@ def to_stmts(lexemes):
             if lexeme == '.':
                 chain_prefix = []
         elif lexeme.startswith('\''): stmt.append(lexeme)
-        else: stmt.append(lexeme.lower())
+        else:
+            if syntax: stmt.append(lexeme)
+            else: stmt.append(lexeme.lower())
 
     if chain_prefix or stmt:
         raise ValueError("Missing '.' at end of statement")
 
     return stmts
 
+
+def get_keywords():
+    import os
+    filepath = os.path.join(os.path.dirname(__file__), 'syntax.txt')
+    with open(filepath) as f: text = f.read()
+    lexemes = lex(text, syntax=True)
+    stmts = to_stmts(lexemes, syntax=True)
+    keywords = {}
+    for stmt in stmts:
+        name = stmt[0]
+        keywords[name] = stmt
+    return keywords
