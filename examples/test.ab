@@ -1,0 +1,4 @@
+WRITE 'Hello'.
+WRITE 'World'.
+* Comment
+WRITE: 'Halla', 'Warld'. "More comment.
