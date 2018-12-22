@@ -1,7 +1,9 @@
 
 
 SINGLE_CHAR_LEXEMES = '.,:'
-KEYWORDS = {'report', 'write', 'data', 'move', 'constants', 'types'}
+KEYWORDS = {'report', 'write', 'skip', 'uline', 'data', 'move',
+    'constants', 'types', 'message'}
+TYPES = {'x', 'c', 'n', 'd', 't', 'i', 'f', 'p', 'string', 'xstring'}
 
 
 def lex(text, verbose=False):
@@ -25,45 +27,21 @@ def lex(text, verbose=False):
                 elif c in SINGLE_CHAR_LEXEMES: lexemes += c
                 elif c is '"': state = 'eat_comment'
                 elif c is '\'': lexeme += c; state = 'eat_string'
-                elif c.isdigit(): state = 'eat_num'; continue
-                elif c is '_' or c.isalpha(): state = 'eat_word'; continue
-                elif c.isprintable(): state = 'eat_op'; continue
-                else: raise ValueError("Weird character: {}".format(repr(c)))
+                else: state = 'eat_word'; continue
             elif state is 'eat_string':
-                if c is '\n':
-                    raise ValueError("Unterminated string literal")
-                elif c is '\'':
+                if c is '\'':
                     lexemes.append(lexeme)
                     lexeme = ''
                     state = 'eat_whitespace'
                 else:
                     lexeme += c
-            elif state is 'eat_num':
-                if c.isdigit():
-                    lexeme += c
-                else:
-                    lexemes.append(lexeme)
-                    lexeme = ''
-                    state = 'eat_whitespace'
-                    continue
             elif state is 'eat_word':
-                if c is '_' or c.isalnum():
-                    lexeme += c
-                else:
+                if c.isspace() or c in SINGLE_CHAR_LEXEMES:
                     lexemes.append(lexeme)
                     lexeme = ''
                     state = 'eat_whitespace'
                     continue
-            elif state is 'eat_op':
-                if c.isprintable() and not c.isspace() and not(
-                    c in SINGLE_CHAR_LEXEMES or c is '_' or c.isalnum()
-                ):
-                    lexeme += c
-                else:
-                    lexemes.append(lexeme)
-                    lexeme = ''
-                    state = 'eat_whitespace'
-                    continue
+                else: lexeme += c
             break
 
     if lexeme: lexemes.append(lexeme)
