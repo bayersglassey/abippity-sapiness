@@ -1,7 +1,7 @@
 
 
 SINGLE_CHAR_LEXEMES = '.,:'
-KEYWORDS = {'write', 'types'}
+KEYWORDS = {'report', 'write', 'data', 'move', 'constants', 'types'}
 
 
 def lex(text, verbose=False):
@@ -28,8 +28,7 @@ def lex(text, verbose=False):
                 elif c.isdigit(): state = 'eat_num'; continue
                 elif c is '_' or c.isalpha(): state = 'eat_word'; continue
                 elif c.isprintable(): state = 'eat_op'; continue
-                else: raise ValueError("Weird character: {} (ord={})"
-                    .format(c, ord(c)))
+                else: raise ValueError("Weird character: {}".format(repr(c)))
             elif state is 'eat_string':
                 if c is '\n':
                     raise ValueError("Unterminated string literal")
@@ -56,7 +55,7 @@ def lex(text, verbose=False):
                     state = 'eat_whitespace'
                     continue
             elif state is 'eat_op':
-                if c.isprintable() and not(
+                if c.isprintable() and not c.isspace() and not(
                     c in SINGLE_CHAR_LEXEMES or c is '_' or c.isalnum()
                 ):
                     lexeme += c
@@ -70,8 +69,6 @@ def lex(text, verbose=False):
     if lexeme: lexemes.append(lexeme)
     return lexemes
 
-
-def fmt_stmt(stmt): return ' '.join(stmt)
 
 def to_stmts(lexemes):
     stmts = []
