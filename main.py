@@ -20,7 +20,9 @@ if __name__ == '__main__':
 
     keywords = get_keywords()
     if PRINT_KEYWORDS:
+        print("KEYWORDS:")
         for name, stmt in keywords.items():
+            print()
             print("{}: {}".format(name, stmt))
 
     lexemes = lex(text, verbose=LEX_VERBOSE, syntax=LEX_SYNTAX)
