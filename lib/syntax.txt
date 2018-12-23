@@ -1,29 +1,37 @@
 
-WRITE {[AT] [/][pos][(len|*|**)]} dobj
+*WRITE {[AT] [/ +newline][pos][({* +star}|{** +stars}|len)]} dobj
+*    [UNDER other_dobj]
+*    [NO-GAP +nogap]
+*    [int_format_options]
+*    [ext_format_options]
+*    [list_elements]
+*    [QUICKINFO info].
+
+WRITE {[AT] [/ +newline]} dobj
     [UNDER other_dobj]
-    [NO-GAP]
+    [NO-GAP +nogap]
     [int_format_options]
     [ext_format_options]
     [list_elements]
     [QUICKINFO info].
 
-int_format_options [LEFT-JUSTIFIED|CENTERED|RIGHT-JUSTIFIED]
+int_format_options [LEFT-JUSTIFIED +ljust|CENTERED +cent|RIGHT-JUSTIFIED +rjust]
     { { [EXPONENT exp]
-        [NO-GROUPING]
-        [NO-SIGN]
-        [NO-ZERO]
+        [NO-GROUPING +nogrp]
+        [NO-SIGN +nosgn]
+        [NO-ZERO +nozero]
         [CURRENCY cur]
         { { [ DECIMALS dec]
             [ROUND scale] }
           | [ UNIT unit] } }
-      | { [ ENVIRONMENT TIME FORMAT]
+      | { [ ENVIRONMENT TIME FORMAT +envtime]
           [ TIME ZONE tz] }
       [STYLE stl] }
-    [USING { {NO EDIT MASK}|{EDIT MASK mask} }]
-    [ DD/MM/YY   | MM/DD/YY
-    | DD/MM/YYYY | MM/DD/YYYY
-    | DDMMYY     | MMDDYY
-    | YYMMDD ].
+    [USING { {NO EDIT MASK +nomask}|{EDIT MASK mask} }]
+    [ DD/MM/YY   +fmt1| MM/DD/YY   +fmt2
+    | DD/MM/YYYY +fmt3| MM/DD/YYYY +fmt4
+    | DDMMYY     +fmt5| MMDDYY     +fmt6
+    | YYMMDD     +fmt7].
 
 ext_format_options
     [COLOR       {[=]{color [ON]}|OFF}|{= col}]
@@ -32,37 +40,37 @@ ext_format_options
     [HOTSPOT     [{ON|OFF}|{= flag}]]
     [INPUT       [{ON|OFF}|{= flag}]]
     [FRAMES      [{ON|OFF}|{= flag}]]
-    [RESET].
+    [RESET +reset].
 
 list_elements
-      {AS CHECKBOX}
-    | {AS ICON}
-    | {AS SYMBOL}
-    | {AS LINE}.
+      {AS CHECKBOX +checkbox}
+    | {AS ICON +icon}
+    | {AS SYMBOL +symbol}
+    | {AS LINE +line}.
 
 
 
 REPORT rep [list_options]
            [MESSAGE-ID mid]
            [DEFINING DATABASE ldb]
-           [REDUCED FUNCTIONALITY].
+           [REDUCED FUNCTIONALITY +redfun].
 
-list_options [NO STANDARD PAGE HEADING]
+list_options [NO STANDARD PAGE HEADING +nohead]
     [LINE-SIZE width]
     [LINE-COUNT page_lines[(footer_lines)]].
 
 
 DATA { {var[(len)] TYPE abap_type [DECIMALS dec]}
        | {var TYPE abap_type [LENGTH len] [DECIMALS dec]} }
-       [VALUE val|{IS INITIAL}]
-       [READ-ONLY].
+       [VALUE val|{IS INITIAL +initial}]
+       [READ-ONLY +readonly].
 
-DATA var { {TYPE [LINE OF] type}
-           | {LIKE [LINE OF] dobj} }
-           [VALUE val|{IS INITIAL}]
-           [READ-ONLY].
+DATA var { {TYPE [LINE OF +lineof] type}
+           | {LIKE [LINE OF +lineof] dobj} }
+           [VALUE val|{IS INITIAL +initial}]
+           [READ-ONLY +readonly].
 
 DATA ref { {TYPE REF TO type}
            | {LIKE REF TO dobj} }
-           [VALUE IS INITIAL]
-           [READ-ONLY].
+           [VALUE IS INITIAL +initial]
+           [READ-ONLY +readonly].

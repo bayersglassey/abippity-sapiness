@@ -1,6 +1,4 @@
 
-KEYWORDS = {'report', 'write', 'skip', 'uline', 'data', 'move',
-    'constants', 'types', 'message'}
 TYPES = {'x', 'c', 'n', 'd', 't', 'i', 'f', 'p', 'string', 'xstring'}
 
 
@@ -48,24 +46,18 @@ def parse_value(text, vars):
     return vars[text]
 
 
-def run(stmts, w=80, h=40, verbose=False):
+def run(parsed_stmts, w=80, h=40, verbose=False):
     report_title = ''
     screen = Screen(w, h)
     vars = {}
 
-    if not stmts:
+    if not parsed_stmts:
         raise ValueError("Empty report!")
 
-    for i, stmt in enumerate(stmts):
-        if verbose: print(stmt)
-        if not stmt:
-            raise ValueError("Empty statement!")
-        if len(stmt) >= 2 and stmt[1] == '=':
-            stmt = ['move'] + stmt[2:] + ['to', stmt[0]]
+    for i, parsed_stmt in enumerate(parsed_stmts):
+        if verbose: print(parsed_stmt)
+        keyword, captures = parsed_stmt
 
-        keyword = stmt[0]
-        if keyword not in KEYWORDS:
-            raise ValueError("Invalid keyword: {}".format(keyword))
         if (i == 0) != (keyword == 'report'):
             if keyword == 'report':
                 raise ValueError("Unexpected 'report' "
@@ -75,26 +67,16 @@ def run(stmts, w=80, h=40, verbose=False):
                     "(should come exactly once, at top of file)")
 
         if keyword == 'data':
-            varname = stmt[1]
+            varname = captures['var']
             vars[varname] = None
-        elif keyword == 'move':
-            value = parse_value(stmt[1], vars)
-            assert stmt[2] == 'to'
-            varname = stmt[3]
-            vars[varname] = value
         elif keyword == 'write':
-            for lexeme in stmt[1:]:
-                if lexeme == '/':
-                    screen.newline()
-                else:
-                    value = parse_value(lexeme, vars)
-                    screen.puts(value)
-        elif keyword == 'skip':
-            x = 0
-            y += 1
+            if 'newline' in captures:
+                screen.newline()
+            dobj = captures['dobj']
+            value = parse_value(dobj, vars)
+            screen.puts(value)
         elif keyword == 'report':
-            assert len(stmt) == 2
-            report_title = stmt[1]
+            report_title = captures['rep']
         else:
             raise ValueError('Keyword not implemented: {}'
                 .format(keyword))
