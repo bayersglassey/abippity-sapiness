@@ -2,42 +2,67 @@
 WRITE {[AT] [/][pos][(len|*|**)]} dobj
     [UNDER other_dobj]
     [NO-GAP]
-    [int_format_options ...]
-    [ext_format_options ...]
-    [list_elements ...]
+    [int_format_options]
+    [ext_format_options]
+    [list_elements]
     [QUICKINFO info].
 
-int_format_options [LEFT-JUSTIFIED|CENTERED|RIGHT-JUSTIFIED] 
-    { { [EXPONENT exp] 
-        [NO-GROUPING] 
-        [NO-SIGN] 
-        [NO-ZERO] 
-        [CURRENCY cur] 
-        { { [ DECIMALS dec] 
-            [ROUND scale] } 
-          | [ UNIT unit] } } 
-      | { [ ENVIRONMENT TIME FORMAT] 
-          [ TIME ZONE tz] } 
-      [STYLE stl] } 
-    [USING { {NO EDIT MASK}|{EDIT MASK mask} }] 
-    [ DD/MM/YY   | MM/DD/YY 
-    | DD/MM/YYYY | MM/DD/YYYY 
-    | DDMMYY     | MMDDYY 
+int_format_options [LEFT-JUSTIFIED|CENTERED|RIGHT-JUSTIFIED]
+    { { [EXPONENT exp]
+        [NO-GROUPING]
+        [NO-SIGN]
+        [NO-ZERO]
+        [CURRENCY cur]
+        { { [ DECIMALS dec]
+            [ROUND scale] }
+          | [ UNIT unit] } }
+      | { [ ENVIRONMENT TIME FORMAT]
+          [ TIME ZONE tz] }
+      [STYLE stl] }
+    [USING { {NO EDIT MASK}|{EDIT MASK mask} }]
+    [ DD/MM/YY   | MM/DD/YY
+    | DD/MM/YYYY | MM/DD/YYYY
+    | DDMMYY     | MMDDYY
     | YYMMDD ].
 
 ext_format_options
-    [COLOR       {[=]{color [ON]}|OFF}|{= col}] 
-    [INTENSIFIED [{ON|OFF}|{= flag}]] 
-    [INVERSE     [{ON|OFF}|{= flag}]] 
-    [HOTSPOT     [{ON|OFF}|{= flag}]] 
-    [INPUT       [{ON|OFF}|{= flag}]] 
-    [FRAMES      [{ON|OFF}|{= flag}]] 
+    [COLOR       {[=]{color [ON]}|OFF}|{= col}]
+    [INTENSIFIED [{ON|OFF}|{= flag}]]
+    [INVERSE     [{ON|OFF}|{= flag}]]
+    [HOTSPOT     [{ON|OFF}|{= flag}]]
+    [INPUT       [{ON|OFF}|{= flag}]]
+    [FRAMES      [{ON|OFF}|{= flag}]]
     [RESET].
 
 list_elements
-      {AS CHECKBOX} 
-    | {AS ICON} 
-    | {AS SYMBOL} 
+      {AS CHECKBOX}
+    | {AS ICON}
+    | {AS SYMBOL}
     | {AS LINE}.
 
 
+
+REPORT rep [list_options]
+           [MESSAGE-ID mid]
+           [DEFINING DATABASE ldb]
+           [REDUCED FUNCTIONALITY].
+
+list_options [NO STANDARD PAGE HEADING]
+    [LINE-SIZE width]
+    [LINE-COUNT page_lines[(footer_lines)]].
+
+
+DATA { {var[(len)] TYPE abap_type [DECIMALS dec]}
+       | {var TYPE abap_type [LENGTH len] [DECIMALS dec]} }
+       [VALUE val|{IS INITIAL}]
+       [READ-ONLY].
+
+DATA var { {TYPE [LINE OF] type}
+           | {LIKE [LINE OF] dobj} }
+           [VALUE val|{IS INITIAL}]
+           [READ-ONLY].
+
+DATA ref { {TYPE REF TO type}
+           | {LIKE REF TO dobj} }
+           [VALUE IS INITIAL]
+           [READ-ONLY].
