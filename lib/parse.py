@@ -43,6 +43,8 @@ def get_keywords():
                 syntax.append(syntax_part)
 
         assert not stack
+        if keyword in keywords:
+            syntax = ('|', keywords[keyword], syntax)
         keywords[keyword] = syntax
     return keywords
 

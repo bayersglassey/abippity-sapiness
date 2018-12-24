@@ -52,10 +52,9 @@ list_options [NO STANDARD PAGE HEADING +nohead]
     [LINE-COUNT page_lines[(footer_lines)]].
 
 
-DATA { {var[(len)] TYPE abap_type [DECIMALS dec]}
-       | {var TYPE abap_type [LENGTH len] [DECIMALS dec]} }
-       [VALUE val|{IS INITIAL +initial}]
-       [READ-ONLY +readonly].
+DATA {var TYPE abap_type [LENGTH len] [DECIMALS dec]}
+    [VALUE val|{IS INITIAL +initial}]
+    [READ-ONLY +readonly].
 
 DATA var { {TYPE [LINE OF +lineof] type}
            | {LIKE [LINE OF +lineof] dobj} }
@@ -66,3 +65,37 @@ DATA ref { {TYPE REF TO type}
            | {LIKE REF TO dobj} }
            [VALUE IS INITIAL +initial]
            [READ-ONLY +readonly].
+
+DATA BEGIN OF struc [READ-ONLY +readonly].
+*     ...
+*     DATA comp ...
+*     INCLUDE {TYPE|STRUCTURE} ...
+*     ...
+DATA END OF struc.
+
+DATA itab { {TYPE [STANDARD]|SORTED|HASHED TABLE OF [REF TO] type}
+          | {LIKE [STANDARD]|SORTED|HASHED TABLE OF dobj} }
+          [tabkeys]
+          [INITIAL SIZE n]
+          [VALUE IS INITIAL]
+          [READ-ONLY].
+
+tabkeys [WITH key].
+
+DATA rtab {TYPE RANGE OF type}|{LIKE RANGE OF dobj}
+            [INITIAL SIZE n]
+            [WITH HEADER LINE]
+            [VALUE IS INITIAL]
+            [READ-ONLY].
+
+*DATA dtype TYPE dbtab|view [READ-ONLY]
+*                  lob_handle_type FOR lob_handle_columns
+*                 [ lob_handle_type FOR lob_handle_columns
+*                  ...                                   ].
+
+DATA struc TYPE struc_type BOXED.
+
+
+
+MOVE {[EXACT] source  TO destination}
+   | {        source ?TO destination}.
