@@ -2,9 +2,9 @@
 WRITE [{AT at} | <at>] dobj
     [UNDER other_dobj]
     [NO-GAP +nogap]
-    [int_format_options]
-    [ext_format_options]
-    [list_elements]
+    [int_format_options+]
+    [ext_format_options+]
+    [list_elements+]
     [QUICKINFO info].
 
 int_format_options [LEFT-JUSTIFIED +ljust|CENTERED +cent|RIGHT-JUSTIFIED +rjust]
@@ -42,7 +42,7 @@ list_elements
 
 
 
-REPORT rep [list_options]
+REPORT rep [list_options+]
            [MESSAGE-ID mid]
            [DEFINING DATABASE ldb]
            [REDUCED FUNCTIONALITY +redfun].
@@ -73,29 +73,30 @@ DATA BEGIN OF struc [READ-ONLY +readonly].
 *     ...
 DATA END OF struc.
 
-DATA itab { {TYPE [STANDARD]|SORTED|HASHED TABLE OF [REF TO] type}
-          | {LIKE [STANDARD]|SORTED|HASHED TABLE OF dobj} }
-          [tabkeys]
+DATA itab { {TYPE {STANDARD +standard}|{SORTED +sorted}|{HASHED +hashed} TABLE OF [REF TO +refto] type}
+          | {LIKE {STANDARD +standard}|{SORTED +sorted}|{HASHED +hashed} TABLE OF dobj} }
+          [tabkeys+]
           [INITIAL SIZE n]
-          [VALUE IS INITIAL]
-          [READ-ONLY].
+          [VALUE IS INITIAL +initial]
+          [READ-ONLY +readonly].
 
 tabkeys [WITH key].
 
 DATA rtab {TYPE RANGE OF type}|{LIKE RANGE OF dobj}
             [INITIAL SIZE n]
-            [WITH HEADER LINE]
-            [VALUE IS INITIAL]
-            [READ-ONLY].
+            [WITH HEADER LINE +headerline]
+            [VALUE IS INITIAL +initial]
+            [READ-ONLY +readonly].
 
 *DATA dtype TYPE dbtab|view [READ-ONLY]
 *                  lob_handle_type FOR lob_handle_columns
 *                 [ lob_handle_type FOR lob_handle_columns
 *                  ...                                   ].
 
-DATA struc TYPE struc_type BOXED.
+DATA struc TYPE struc_type BOXED +boxed.
 
 
 
-MOVE {[EXACT] source  TO destination}
-   | {        source ?TO destination}.
+MOVE {[EXACT +exact] source  TO destination}
+   | {               source ?TO destination +qmark}.
+

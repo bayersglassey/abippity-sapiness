@@ -32,6 +32,8 @@ def get_keywords():
                 syntax = stack.pop()
             elif lexeme == '|':
                 syntax.append('|')
+            elif lexeme.startswith('\''):
+                syntax_part = lexeme[1:]
             else:
                 syntax_part = lexeme
 
@@ -157,7 +159,10 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
     elif syntax_part[0] == '+' and syntax_part != '+':
         captures[syntax_part[1:]] = True
     else:
+        is_many = syntax_part[-1] == '+' and syntax_part != '+'
         is_keyword = syntax_part.upper() == syntax_part
+        if is_many:
+            syntax_part = syntax_part[:-1]
         if is_keyword or syntax_part not in keywords:
             if lexeme_i >= len(stmt):
                 return False, lexeme_i, captures
@@ -174,6 +179,18 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
                     return False, lexeme_i, captures
             else:
                 captures[syntax_part] = lexeme
+        elif is_many:
+            sub_syntax = keywords[syntax_part]
+            many_captures = []
+            while True:
+                ok, new_lexeme_i, sub_captures = parse_stmt(
+                    stmt, lexeme_i, keywords,
+                    sub_syntax, verbose, depth+1)
+                if ok and sub_captures:
+                    lexeme_i = new_lexeme_i
+                    many_captures.append(sub_captures)
+                else: break
+            captures[syntax_part] = many_captures
         else:
             sub_syntax = keywords[syntax_part]
             ok, lexeme_i, sub_captures = parse_stmt(
