@@ -1,4 +1,5 @@
 
+import re
 from .lex import lex, to_stmts
 
 
@@ -160,11 +161,15 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
                 return False, lexeme_i, captures
             lexeme = stmt[lexeme_i]
             lexeme_i += 1
-            if is_keyword:
+            if syntax_part == '<at>':
+                match = re.fullmatch(
+                    r'/?([0-9]+)?(\([0-9]+|(\*\*?)\))?', lexeme)
+                if not match:
+                    return False, lexeme_i, captures
+                captures['at'] = lexeme
+            elif is_keyword:
                 if lexeme.upper() != syntax_part:
                     return False, lexeme_i, captures
-                    raise ValueError("Expected {}, got: {}"
-                        .format(syntax_part, lexeme))
             else:
                 captures[syntax_part] = lexeme
         else:
