@@ -1,13 +1,7 @@
 
-*WRITE {[AT] [/ +newline][pos][({* +star}|{** +stars}|len)]} dobj
-*    [UNDER other_dobj]
-*    [NO-GAP +nogap]
-*    [int_format_options]
-*    [ext_format_options]
-*    [list_elements]
-*    [QUICKINFO info].
+TEST A B1 | B2 C.
 
-WRITE {[AT] [/ +newline]} dobj
+WRITE [{AT at} | <at>] dobj
     [UNDER other_dobj]
     [NO-GAP +nogap]
     [int_format_options]

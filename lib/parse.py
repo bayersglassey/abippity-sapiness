@@ -16,25 +16,31 @@ def get_keywords():
         stack = []
         start = 0 if keyword.upper() == keyword else 1
         for lexeme in stmt[start:]:
+            syntax_part = None
             if lexeme == '{':
                 stack.append(syntax)
                 syntax = []
             elif lexeme == '}':
                 syntax_part = syntax
                 syntax = stack.pop()
-                syntax.append(syntax_part)
             elif lexeme == '[':
                 stack.append(syntax)
                 syntax = []
             elif lexeme == ']':
                 syntax_part = ('[', syntax)
                 syntax = stack.pop()
-                syntax.append(syntax_part)
             elif lexeme == '|':
-                syntax_part = ('|', syntax.pop())
-                syntax.append(syntax_part)
+                syntax.append('|')
             else:
-                syntax.append(lexeme)
+                syntax_part = lexeme
+
+            if syntax_part is not None:
+                while syntax and syntax[-1] == '|':
+                    syntax.pop()
+                    prev_syntax_part = syntax.pop()
+                    syntax_part = ('|', prev_syntax_part, syntax_part)
+                syntax.append(syntax_part)
+
         assert not stack
         keywords[keyword] = syntax
     return keywords
@@ -44,14 +50,14 @@ def print_syntax(syntax_part, depth=0):
     tabs = '  ' * depth
     if isinstance(syntax_part, tuple):
         kind = syntax_part[0]
-        syntax = syntax_part[1]
         if kind == '[':
             print("{}[".format(tabs))
-            print_syntax(syntax, depth+1)
+            print_syntax(syntax_part[1], depth+1)
             print("{}]".format(tabs))
         elif kind == '|':
-            print_syntax(syntax, depth)
+            print_syntax(syntax_part[1], depth)
             print("{}|".format(tabs))
+            print_syntax(syntax_part[2], depth)
         else: raise ValueError("Unexpected kind: {}"
             .format(kind))
     elif isinstance(syntax_part, list):
@@ -115,15 +121,27 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
         tabs, syntax_part, stmt[lexeme_i:]))
     if isinstance(syntax_part, tuple):
         kind = syntax_part[0]
-        sub_syntax = syntax_part[1]
         if kind == '[':
+            sub_syntax = syntax_part[1]
             ok, new_lexeme_i, sub_captures = parse_stmt(
                 stmt, lexeme_i, keywords,
                 sub_syntax, verbose, depth+1)
             if ok:
                 lexeme_i = new_lexeme_i
                 captures.update(sub_captures)
-        elif kind == '|': pass
+        elif kind == '|':
+            sub_syntax_a = syntax_part[1]
+            sub_syntax_b = syntax_part[2]
+            ok, new_lexeme_i, sub_captures = parse_stmt(
+                stmt, lexeme_i, keywords,
+                sub_syntax_a, verbose, depth+1)
+            if ok:
+                lexeme_i = new_lexeme_i
+                captures.update(sub_captures)
+            else:
+                return parse_stmt(
+                    stmt, lexeme_i, keywords,
+                    sub_syntax_b, verbose, depth+1)
         else: raise ValueError("Unexpected kind: {}"
             .format(kind))
     elif isinstance(syntax_part, list):

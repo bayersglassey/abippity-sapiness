@@ -7,7 +7,7 @@ def lex(text, verbose=False, syntax=False):
     lexeme = ''
 
     if syntax:
-        SINGLE_CHAR_LEXEMES = '()[]{}|'
+        SINGLE_CHAR_LEXEMES = '()[]{}|.'
     else:
         SINGLE_CHAR_LEXEMES = '.,:'
 
