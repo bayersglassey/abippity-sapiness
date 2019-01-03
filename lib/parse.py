@@ -1,6 +1,7 @@
 
 import re
 from .lex import lex, to_stmts
+from .utils import assertFalse
 
 
 def get_keywords():
@@ -44,7 +45,7 @@ def get_keywords():
                     syntax_part = ('|', prev_syntax_part, syntax_part)
                 syntax.append(syntax_part)
 
-        assert not stack
+        assertFalse(stack)
         if keyword in keywords:
             syntax = ('|', keywords[keyword], syntax)
         keywords[keyword] = syntax

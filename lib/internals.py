@@ -1,5 +1,26 @@
 
+from .utils import assertIn, assertEqual
+
+
+
 BASETYPES = {'x', 'c', 'n', 'd', 't', 'i', 'f', 'p', 'string', 'xstring'}
+FIXEDLENGTH_BASETYPES = {'x', 'c', 'n', 'p'}
+DEFAULT_BASETYPE_LENGTHS = {'c': 1, 'n': 1}
+DYNAMICLENGTH_BASETYPES = {'string', 'xstring'}
+NUMERIC_BASETYPES = {'n', 'i', 'f', 'p'}
+"""
+from https://wiki.scn.sap.com/wiki/display/ABAP/ABAP+Types:
+Elementary Types supported by ABAP
+    Fixed length:
+        characters (C)
+        numbers: numeric text (N), integers (I), packed (P), floating decimal point (F)
+        Date (D)
+        Time (T)
+        Hexadecimal (X)
+    Variable length:
+        String
+        Xstring
+"""
 
 
 class Screen:
@@ -14,8 +35,8 @@ class Screen:
         self.spacebar()
     def puts(self, text):
         for c in text: self.putc(c)
-    def put_value(self, value):
-        self.puts(value.to_text())
+    def put_value(self, value, **kwargs):
+        self.puts(value.to_text(**kwargs))
     def spacebar(self):
         self.x += 1
         if self.x >= self.w: self.newline()
@@ -43,21 +64,45 @@ class Report:
 
 
 class Type:
-    def __init__(self, basetype):
-        assert basetype in BASETYPES
+    def __init__(self, basetype, length=None):
+        assertIn(basetype, BASETYPES)
+        if length is None:
+            length = DEFAULT_BASETYPE_LENGTHS.get(basetype)
+        assertEqual(length is not None, basetype in FIXEDLENGTH_BASETYPES)
         self.basetype = basetype
+        self.length = length
     def __str__(self):
         return "{}".format(self.basetype)
     def __repr__(self):
         return "Type({})".format(self)
-    def __eq__(self, other):
-        return self.basetype == other.basetype
+    def convert(self, value):
+
+        # WARNING: This method needs a loooot of work.
+        # See: https://help.sap.com/doc/abapdocu_752_index_htm/7.52/en-US/abenconversion_rules.htm
+
+        self_basetype = self.basetype
+        value_type = value.type
+        value_basetype = value_type.basetype
+
+        if self_basetype == 'n':
+            if value_basetype == 'i':
+                return Value(self, value.data)
+
+        assertEqual(self_basetype, value_basetype)
+        if self.length is not None:
+            assertEqual(self.length, value_type.length)
+        return value
+
+    def is_numeric(self):
+        return self.basetype in NUMERIC_BASETYPES
     def get_initial(self):
         """Returns the \"initial\" value for the given ABAP type
         (that is, the value for which the ABAP expression
         \"<value> IS INITIAL\" is true)"""
         basetype = self.basetype
-        if basetype == 'n':
+        if basetype == 'i':
+            return Value(self, 0)
+        elif basetype == 'n':
             return Value(self, 0)
         elif basetype == 'string':
             return Value(self, "")
@@ -73,28 +118,34 @@ class Value:
         return str(self.data)
     def __repr__(self):
         return "Value({} TYPE {})".format(self.data, self.type)
-    def to_text(self):
-        return str(self.data)
+    def to_text(self, nozero=False):
+        s = str(self.data)
+        type = self.type
+        if type.is_numeric():
+            length = type.length
+            if length is not None and not nozero:
+                s = s.rjust(length, '0')
+        return s
 
 class Var:
-    def __init__(self, name, type, dims=None, value=None):
+    def __init__(self, name, type, value=None):
         self.name = name.lower()
         self.type = type
-        self.dims = dims
         if value is None:
             value = type.get_initial()
         self.set(value)
     def __str__(self):
         s = "{}".format(self.name)
-        if self.dims is not None:
-            s = "{}({})".format(s, self.dims)
+        length = self.type.length
+        if length is not None:
+            s = "{}({})".format(s, length)
         return "{} TYPE {} VALUE {}".format(s, self.type, self.value)
     def __repr__(self):
         return "Var({})".format(self)
     def get(self):
         return self.value
     def set(self, value):
-        assert self.type == value.type
+        value = self.type.convert(value)
         self.value = value
 
 class Ref:

@@ -11,31 +11,39 @@ class Runner:
 
         self.report_title = ''
         self.screen = Screen(w, h)
-        self.types = {}
         self.vars = {}
 
-    def parse_type(self, text):
-        types = self.types
-        if text in types:
-            return types[text]
-        type = Type(text)
-        self.types[text] = type
+    def parse_type(self, text, length=None):
+        type = Type(text, length)
         return type
 
-    def parse_var(self, text, type):
-        match = re.fullmatch(r'(?P<name>[a-zA-Z_][a-zA-Z_0-9]*)(\((?P<dims>[0-9]+)\))?', text)
+    def parse_var(self, text, type_text):
+        match = re.fullmatch(
+            r'(?P<name>[a-zA-Z_][a-zA-Z_0-9]*)(\((?P<length>[0-9]+)\))?',
+            text)
         groupdict = match.groupdict()
         name = groupdict['name']
-        dims = groupdict['dims']
-        if dims: dims = int(dims)
-        return Var(name, type, dims)
+        length = groupdict['length']
+        if length: length = int(length)
+        type = self.parse_type(type_text, length)
+        return Var(name, type)
 
     def parse_value(self, text):
         c0 = text[0:1]
         if c0 == '\'':
+            data = text[1:]
+
+            # from https://www.tutorialspoint.com/sap_abap/
+            # sap_abap_constants_literals.htm:
+            # Note − In text field literals, trailing blanks are ignored,
+            # but in string literals they are taken into account.
+            data = data.rstrip()
+
+            return Value(self.parse_type('c', len(data)), data)
+        if c0 == '`':
             return Value(self.parse_type('string'), text[1:])
         if c0.isdigit():
-            return Value(self.parse_type('n'), int(text))
+            return Value(self.parse_type('i'), int(text))
         return self.vars[text].get()
 
     def parse_ref(self, text):
@@ -66,8 +74,7 @@ class Runner:
             if keyword == 'data':
                 var_text = captures['var']
                 type_text = captures['abap_type']
-                type = self.parse_type(type_text)
-                var = self.parse_var(var_text, type)
+                var = self.parse_var(var_text, type_text)
                 vars[var.name] = var
             elif keyword == 'move':
                 src_text = captures['source']
@@ -80,7 +87,13 @@ class Runner:
                     screen.newline()
                 dobj = captures['dobj']
                 value = self.parse_value(dobj)
-                screen.put_value(value)
+
+                nozero = False
+                for option in captures['int_format_options']:
+                    if 'nozero' in option:
+                        nozero = True
+
+                screen.put_value(value, nozero=nozero)
                 if 'nogap' not in captures:
                     screen.spacebar()
             elif keyword == 'skip':
