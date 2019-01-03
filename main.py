@@ -3,7 +3,7 @@
 from sys import stdin, stdout, argv
 from lib.lex import lex, to_stmts
 from lib.parse import get_keywords, print_syntax, parse
-from lib.run import run
+from lib.run import Runner
 
 if __name__ == '__main__':
     text = stdin.read()
@@ -61,9 +61,10 @@ if __name__ == '__main__':
 
         # run parsed stmts
         if RUN:
-            report, vars = run(parsed_stmts, 40, 20, verbose=RUN_VERBOSE)
+            runner = Runner(40, 20, verbose=RUN_VERBOSE)
+            report = runner.run(parsed_stmts)
             if PRINT_REPORT:
                 report.print()
             if PRINT_VARS:
-                for varname, value in vars.items():
+                for varname, value in runner.vars.items():
                     print("{}".format(value))
