@@ -2,6 +2,7 @@
 import re
 
 from .internals import Screen, Report, Type, Value, Var, Ref
+from .utils import assertEqual, assertFalse
 
 
 class Runner:
@@ -17,13 +18,15 @@ class Runner:
         type = Type(text, length)
         return type
 
-    def parse_var(self, text, type_text):
+    def parse_var(self, text, type_text, len_text=None):
         match = re.fullmatch(
             r'(?P<name>[a-zA-Z_][a-zA-Z_0-9]*)(\((?P<length>[0-9]+)\))?',
             text)
         groupdict = match.groupdict()
         name = groupdict['name']
         length = groupdict['length']
+        assertFalse(length is not None and len_text is not None)
+        if len_text is not None: length = int(len_text)
         if length: length = int(length)
         type = self.parse_type(type_text, length)
         return Var(name, type)
@@ -74,7 +77,12 @@ class Runner:
             if keyword == 'data':
                 var_text = captures['var']
                 type_text = captures['abap_type']
-                var = self.parse_var(var_text, type_text)
+                len_text = captures.get('len')
+                var = self.parse_var(var_text, type_text, len_text)
+                value_text = captures.get('value')
+                if value_text is not None:
+                    value = self.parse_value(value_text)
+                    var.set(value)
                 vars[var.name] = var
             elif keyword == 'move':
                 src_text = captures['source']
@@ -82,9 +90,22 @@ class Runner:
                 src = self.parse_value(src_text)
                 dest = self.parse_ref(dest_text)
                 dest.set(src)
+            elif keyword == '=':
+                lhs_list = captures['lhs']
+                rhs_list = captures['rhs']
+                assertEqual(len(lhs_list), 1)
+                assertEqual(len(rhs_list), 1)
+                lhs_text = lhs_list[0]
+                rhs_text = rhs_list[0]
+                lhs = self.parse_ref(lhs_text)
+                rhs = self.parse_value(rhs_text)
+                lhs.set(rhs)
             elif keyword == 'write':
-                if 'newline' in captures:
+                at = captures.get('at')
+                newline = at and at.startswith('/')
+                if newline:
                     screen.newline()
+
                 dobj = captures['dobj']
                 value = self.parse_value(dobj)
 

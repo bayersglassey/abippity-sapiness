@@ -1,13 +1,15 @@
 
-from .utils import assertIn, assertEqual
+from .utils import assertIn, assertEqual, assertGreaterEqual
 
 
 
 BASETYPES = {'x', 'c', 'n', 'd', 't', 'i', 'f', 'p', 'string', 'xstring'}
-FIXEDLENGTH_BASETYPES = {'x', 'c', 'n', 'p'}
+FIXED_LENGTH_BASETYPES = {'x', 'c', 'n', 'p'}
 DEFAULT_BASETYPE_LENGTHS = {'c': 1, 'n': 1}
-DYNAMICLENGTH_BASETYPES = {'string', 'xstring'}
+FORCED_BASETYPE_LENGTHS = {'d': 8, 't': 6}
+DYNAMIC_LENGTH_BASETYPES = {'string', 'xstring'}
 NUMERIC_BASETYPES = {'n', 'i', 'f', 'p'}
+TEXTUAL_BASETYPES = {'c', 'string', 'xstring'}
 """
 from https://wiki.scn.sap.com/wiki/display/ABAP/ABAP+Types:
 Elementary Types supported by ABAP
@@ -73,7 +75,9 @@ class Type:
         assertIn(basetype, BASETYPES)
         if length is None:
             length = DEFAULT_BASETYPE_LENGTHS.get(basetype)
-        assertEqual(length is not None, basetype in FIXEDLENGTH_BASETYPES)
+        assertEqual(length is not None, basetype in FIXED_LENGTH_BASETYPES)
+        if basetype in FORCED_BASETYPE_LENGTHS:
+            length = FORCED_BASETYPE_LENGTHS[basetype]
         self.basetype = basetype
         self.length = length
     def __str__(self):
@@ -89,27 +93,30 @@ class Type:
         value_type = value.type
         value_basetype = value_type.basetype
 
-        if self_basetype == 'n':
-            if value_basetype == 'i':
-                return Value(self, value.data)
+        if self.length is not None:
+            assertGreaterEqual(self.length, value.get_length())
+
+        if self.is_numeric() and value_type.is_numeric():
+            return Value(self, value.data)
+
+        if self.is_textual() and value_type.is_textual():
+            return Value(self, value.data)
 
         assertEqual(self_basetype, value_basetype)
-        if self.length is not None:
-            assertEqual(self.length, value_type.length)
         return value
 
     def is_numeric(self):
         return self.basetype in NUMERIC_BASETYPES
+    def is_textual(self):
+        return self.basetype in TEXTUAL_BASETYPES
     def get_initial(self):
         """Returns the \"initial\" value for the given ABAP type
         (that is, the value for which the ABAP expression
         \"<value> IS INITIAL\" is true)"""
         basetype = self.basetype
-        if basetype == 'i':
+        if self.is_numeric():
             return Value(self, 0)
-        elif basetype == 'n':
-            return Value(self, 0)
-        elif basetype == 'string':
+        elif self.is_textual():
             return Value(self, "")
         else:
             raise ValueError("Not implemented for type: {}"
@@ -120,9 +127,18 @@ class Value:
         self.type = type
         self.data = data
     def __str__(self):
-        return str(self.data)
+        return "{}".format(repr(self.data))
     def __repr__(self):
-        return "Value({} TYPE {})".format(self.data, self.type)
+        return "Value({} TYPE {})".format(repr(self.data), self.type)
+    def get_length(self):
+        type = self.type
+        if type.length is not None:
+            return type.length
+        if type.is_numeric():
+            return len(str(self.data))
+        if type.is_textual():
+            return len(self.data)
+        raise NotImplemented()
     def to_text(self, nozero=False):
         s = str(self.data)
         type = self.type

@@ -9,6 +9,26 @@ def assertNotEqual(a, b):
         raise AssertionError("{} == {}".format(
             repr(a), repr(b)))
 
+def assertGreater(a, b):
+    if a <= b:
+        raise AssertionError("{} <= {}".format(
+            repr(a), repr(b)))
+
+def assertGreaterEqual(a, b):
+    if a < b:
+        raise AssertionError("{} < {}".format(
+            repr(a), repr(b)))
+
+def assertLess(a, b):
+    if a >= b:
+        raise AssertionError("{} >= {}".format(
+            repr(a), repr(b)))
+
+def assertLessEqual(a, b):
+    if a > b:
+        raise AssertionError("{} > {}".format(
+            repr(a), repr(b)))
+
 def assertIn(a, b):
     if a not in b:
         raise AssertionError("{} not in {}".format(
