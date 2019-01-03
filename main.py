@@ -66,4 +66,4 @@ if __name__ == '__main__':
                 report.print()
             if PRINT_VARS:
                 for varname, value in vars.items():
-                    print('{}: {}'.format(varname, repr(value)))
+                    print("{}".format(value))

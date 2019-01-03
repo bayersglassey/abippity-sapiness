@@ -1,4 +1,7 @@
 
+SKIP { [n]
+     | {TO LINE line} }.
+
 WRITE [{AT at} | <at>] dobj
     [UNDER other_dobj]
     [NO-GAP +nogap]
