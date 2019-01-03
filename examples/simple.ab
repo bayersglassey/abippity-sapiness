@@ -17,3 +17,8 @@ DATA text_string TYPE STRING.
 text_string = 'A Program in ABAP'.
 Write / text_string.
 
+DATA text_string2 LIKE text_string.
+text_string2 = 'Prooooogram'.
+Write / text_string2.
+
+ULINE.

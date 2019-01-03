@@ -76,9 +76,15 @@ class Runner:
 
             if keyword == 'data':
                 var_text = captures['var']
-                type_text = captures['abap_type']
-                len_text = captures.get('len')
-                var = self.parse_var(var_text, type_text, len_text)
+                if 'dobj' in captures:
+                    dobj_text = captures['dobj']
+                    like_value = self.parse_value(dobj_text)
+                    type = like_value.type
+                    var = Var(var_text, type)
+                else:
+                    type_text = captures['abap_type']
+                    len_text = captures.get('len')
+                    var = self.parse_var(var_text, type_text, len_text)
                 value_text = captures.get('value')
                 if value_text is not None:
                     value = self.parse_value(value_text)
