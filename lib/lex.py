@@ -26,10 +26,18 @@ def lex(text, verbose=False, syntax=False):
                 elif c.isspace(): pass
                 elif c in SINGLE_CHAR_LEXEMES: lexemes += c
                 elif c == '"': state = 'eat_comment'
-                elif c == '\'': lexeme += c; state = 'eat_string'
+                elif c == '\'': lexeme += c; state = 'eat_char'
+                elif c == '`': lexeme += c; state = 'eat_string'
                 else: state = 'eat_word'; continue
-            elif state == 'eat_string':
+            elif state == 'eat_char':
                 if c == '\'':
+                    lexemes.append(lexeme)
+                    lexeme = ''
+                    state = 'eat_whitespace'
+                else:
+                    lexeme += c
+            elif state == 'eat_string':
+                if c == '`':
                     lexemes.append(lexeme)
                     lexeme = ''
                     state = 'eat_whitespace'
@@ -68,7 +76,8 @@ def to_stmts(lexemes, syntax=False):
             stmt = []
             if lexeme == '.':
                 chain_prefix = []
-        elif lexeme.startswith('\''): stmt.append(lexeme)
+        elif lexeme.startswith('\'') or lexeme.startswith('`'):
+            stmt.append(lexeme)
         else:
             if syntax: stmt.append(lexeme)
             else: stmt.append(lexeme.lower())
