@@ -3,3 +3,21 @@ REPORT ZMATH.
 data sum type i.
 sum = 0.
 sum = sum + : 1, 2, 3, 4.
+
+DATA: A TYPE I VALUE 115,
+      B TYPE I VALUE 119.
+      IF A LT B.
+      WRITE: / 'A is less than B'.
+      ENDIF
+
+DATA: A TYPE I.
+      IF A IS INITIAL.
+      WRITE: / 'A is assigned'.
+      ENDIF.
+
+DATA: P(10) TYPE C VALUE 'APPLE',
+      Q(10) TYPE C VALUE 'CHAIR'.
+      IF P CA Q.
+      WRITE: / 'P contains at least one character of Q'.
+      ENDIF.
+

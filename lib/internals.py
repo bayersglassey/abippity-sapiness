@@ -88,6 +88,13 @@ class Type:
 
         # WARNING: This method needs a loooot of work.
         # See: https://help.sap.com/doc/abapdocu_752_index_htm/7.52/en-US/abenconversion_rules.htm
+        # See also: https://www.tutorialspoint.com/sap_abap/sap_abap_operators.htm:
+        #     Following is the order of preference −
+        #     If one field is of type I, then the other is converted to type I.
+        #     If one field is of type P, then the other is converted to type P.
+        #     If one field is of type D, then the other is converted to type D. But C and N types are not converted and they are compared directly. Similar is the case with type T.
+        #     If one field is of type N and the other is of type C or X, both the fields are converted to type P.
+        #     If one field is of type C and the other is of type X, the X type is converted to type C.
 
         self_basetype = self.basetype
         value_type = value.type
