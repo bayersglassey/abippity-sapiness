@@ -2,6 +2,8 @@
 SKIP { [n]
      | {TO LINE line} }.
 
+ULINE [{AT at} | <at>] [NO-GAP +nogap].
+
 WRITE [{AT at} | <at>] dobj
     [UNDER other_dobj]
     [NO-GAP +nogap]

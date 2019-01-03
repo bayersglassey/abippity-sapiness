@@ -46,6 +46,11 @@ class Screen:
         if self.y >= self.h:
             self.h += 1
             self.data.append([' '] * self.w)
+    def uline(self):
+        if self.x != 0:
+            self.newline()
+        for i in range(self.w):
+            self.putc('-')
     def as_lines(self):
         return [''.join(line_data) for line_data in self.data]
 

@@ -3,6 +3,7 @@ report zhello defining database lolo.
 write 'Hello' quickinfo 'Moused over!'.
 skip.
 write: 'LA', 'LA' NO-GAP, 'LA', 'LAAA!'.
+uline.
 
 DATA: W_NUR(10) TYPE N.
       MOVE 50 TO W_NUR.

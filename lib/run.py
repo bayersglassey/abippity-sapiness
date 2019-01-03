@@ -96,6 +96,8 @@ class Runner:
                 screen.put_value(value, nozero=nozero)
                 if 'nogap' not in captures:
                     screen.spacebar()
+            elif keyword == 'uline':
+                screen.uline()
             elif keyword == 'skip':
                 to_line = captures.get('line')
                 if to_line is not None:
