@@ -1,5 +1,5 @@
 
-from .utils import assertIn, assertEqual, assertGreaterEqual
+from .utils import assertIn, assertTrue, assertEqual, assertGreaterEqual
 
 
 
@@ -22,6 +22,9 @@ Elementary Types supported by ABAP
     Variable length:
         String
         Xstring
+
+See also, conversion charts for all elementary types:
+https://help.sap.com/doc/saphelp_470/4.7/en-US/fc/eb3434358411d1829f0000e829fbfe/content.htm:
 """
 
 
@@ -84,6 +87,13 @@ class Type:
         return "{}".format(self.basetype)
     def __repr__(self):
         return "Type({})".format(self)
+    @classmethod
+    def numeric_lcd(Type, type1, type2):
+        # WARNING: This is just plain wrong... but our numeric types basically all behave the same, so whatever.
+        # See https://help.sap.com/doc/saphelp_470/4.7/en-US/fc/eb3434358411d1829f0000e829fbfe/content.htm
+        assertTrue(type1.is_numeric())
+        assertTrue(type2.is_numeric())
+        return type1
     def convert(self, value):
 
         # WARNING: This method needs a loooot of work.
@@ -146,6 +156,18 @@ class Value:
         if type.is_textual():
             return len(self.data)
         raise NotImplemented()
+    def add(self, other):
+        type = Type.numeric_lcd(self.type, other.type)
+        return Value(type, self.data + other.data)
+    def sub(self, other):
+        type = Type.numeric_lcd(self.type, other.type)
+        return Value(type, self.data - other.data)
+    def mul(self, other):
+        type = Type.numeric_lcd(self.type, other.type)
+        return Value(type, self.data * other.data)
+    def div(self, other):
+        type = Type.numeric_lcd(self.type, other.type)
+        return Value(type, self.data // other.data)
     def to_text(self, nozero=False):
         s = str(self.data)
         type = self.type

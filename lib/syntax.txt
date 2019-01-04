@@ -133,3 +133,14 @@ rel_op
     | {BYTE-CO +byte-co}|{BYTE-CN +byte-cn}|{BYTE-CA +byte-ca}|{BYTE-NA +byte-na}|{BYTE-CS +byte-cs}|{BYTE-NS +byte-ns}
     | {O +o}|{Z +z}|{M +m}.
 
+ASSERT [ [ID group [SUBKEY sub]]
+        [FIELDS fields+]
+         CONDITION ] log_exp.
+
+fields field.
+
+
+ADD dobj1 TO dobj2.
+SUBTRACT dobj1 FROM dobj2.
+MULTIPLY dobj1 BY dobj2.
+DIVIDE dobj1 BY dobj2.

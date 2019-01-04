@@ -85,7 +85,7 @@ class Runner:
                     type_text = captures['abap_type']
                     len_text = captures.get('len')
                     var = self.parse_var(var_text, type_text, len_text)
-                value_text = captures.get('value')
+                value_text = captures.get('val')
                 if value_text is not None:
                     value = self.parse_value(value_text)
                     var.set(value)
@@ -106,10 +106,34 @@ class Runner:
                 lhs = self.parse_ref(lhs_text)
                 rhs = self.parse_value(rhs_text)
                 lhs.set(rhs)
+            elif keyword == 'add':
+                src = self.parse_value(captures['dobj1'])
+                dest = self.parse_ref(captures['dobj2'])
+                value = dest.get().add(src)
+                dest.set(value)
+            elif keyword == 'subtract':
+                src = self.parse_value(captures['dobj1'])
+                dest = self.parse_ref(captures['dobj2'])
+                value = dest.get().sub(src)
+                dest.set(value)
+            elif keyword == 'multiply':
+                dest = self.parse_ref(captures['dobj1'])
+                src = self.parse_value(captures['dobj2'])
+                value = dest.get().mul(src)
+                dest.set(value)
+            elif keyword == 'divide':
+                dest = self.parse_ref(captures['dobj1'])
+                src = self.parse_value(captures['dobj2'])
+                value = dest.get().div(src)
+                dest.set(value)
+            elif keyword == 'assert':
+                pass
             elif keyword == 'write':
                 at = captures.get('at')
                 newline = at and at.startswith('/')
+
                 if newline:
+                #if newline and screen.x > 0:  # ??????
                     screen.newline()
 
                 dobj = captures['dobj']

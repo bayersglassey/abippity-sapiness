@@ -1,27 +1,23 @@
 REPORT ZMATH.
 
 data sum type i.
-sum = 0.
-sum = sum + : 1, 2, 3, 4.
 
-DATA: A TYPE I VALUE 115,
-      B TYPE I VALUE 119.
-      IF A LT B.
-      WRITE: / 'A is less than B'.
-      ENDIF.
+*sum = 0.
+*sum = sum + : 1, 2, 3, 4.
 
-DATA: A TYPE I.
-      IF A IS INITIAL.
-      WRITE: / 'A is assigned'.
-      ELSEIF A EQ 3.
-      WRITE: / 'A is three'.
-      ELSE.
-      WRITE: / 'A ain''t assigned'.
-      ENDIF.
+move 0 to sum.
+add: 1 to sum, 2 to sum, 3 to sum, 4 to sum.
 
-DATA: P(10) TYPE C VALUE 'APPLE',
-      Q(10) TYPE C VALUE 'CHAIR'.
-      IF P CA Q.
-      WRITE: / 'P contains at least one character of Q'.
-      ENDIF.
+write: /    'sum: ', sum.
+assert sum eq 10.
 
+data x type i value 1.
+write: / 'x =', x.
+add 2 to x.
+write: / '+ 2 -> ', x.
+multiply x by 10.
+write: / '* 10 -> ', x.
+divide x by 5.
+write: / '/ 5 -> ', x.
+subtract 3 from x.
+write: / '- 3 -> ', x.
