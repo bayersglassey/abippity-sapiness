@@ -2,7 +2,8 @@
 
 from sys import stdin, stdout, argv
 from lib.lex import lex, to_stmts
-from lib.parse import get_keywords, print_syntax, parse, group
+from lib.parse import (get_keywords, print_syntax, parse, group,
+    print_grouped_stmts)
 from lib.run import Runner
 
 if __name__ == '__main__':
@@ -72,8 +73,7 @@ if __name__ == '__main__':
             grouped_stmts = group(parsed_stmts, verbose=GROUP_VERBOSE)
             if PRINT_GROUPED_STMTS:
                 print("GROUPED STATEMENTS:")
-                for grouped_stmt in grouped_stmts:
-                    print(grouped_stmt)
+                print_grouped_stmts(grouped_stmts, 1)
 
             # run grouped stmts
             if RUN:

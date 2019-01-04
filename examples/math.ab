@@ -13,6 +13,10 @@ DATA: A TYPE I VALUE 115,
 DATA: A TYPE I.
       IF A IS INITIAL.
       WRITE: / 'A is assigned'.
+      ELSEIF A EQ 3.
+      WRITE: / 'A is three'.
+      ELSE.
+      WRITE: / 'A ain''t assigned'.
       ENDIF.
 
 DATA: P(10) TYPE C VALUE 'APPLE',

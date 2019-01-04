@@ -1,7 +1,9 @@
 
 import re
 from .lex import lex, to_stmts
-from .utils import assertFalse
+from .utils import assertFalse, assertEqual, assertIn
+
+BLOCK_KEYWORDS = {'if', 'case'}
 
 
 def isidentifier(s):
@@ -117,13 +119,6 @@ def parse(stmts, verbose=False, keywords=None):
 
     return parsed_stmts
 
-def group(parsed_stmts, verbose=False):
-    grouped_stmts = []
-    for parsed_stmt in parsed_stmts:
-        grouped_stmt = parsed_stmt
-        grouped_stmts.append(grouped_stmt)
-    return grouped_stmts
-
 def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
         verbose=False, depth=0):
     """Returns (ok, lexeme_i, captures) where:
@@ -226,3 +221,60 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
             if is_named: captures[capture_name] = sub_captures
             else: captures.update(sub_captures)
     return True, lexeme_i, captures
+
+
+
+def group(parsed_stmts, verbose=False):
+    grouped_stmts = []
+    stack = [] # list of (parsed_stmt, grouped_stmts)
+    for parsed_stmt in parsed_stmts:
+        if verbose: print("grouping: {}".format(parsed_stmt))
+        keyword, captures = parsed_stmt
+        if keyword == 'if':
+            if_parts = [captures.copy()]
+            if_stmt = ('if', if_parts)
+            stack.append((if_stmt, grouped_stmts))
+            grouped_stmts = []
+        elif keyword == 'elseif' or keyword == 'else' or keyword == 'endif':
+            if_stmt, prev_grouped_stmts = stack.pop()
+            if_keyword, if_parts = if_stmt
+            if keyword == 'endif':
+                assertIn(if_keyword, {'if', 'ifelse'})
+            else:
+                assertEqual(if_keyword, 'if')
+
+            if_parts[-1]['block'] = grouped_stmts
+            grouped_stmts = []
+
+            if keyword != 'endif':
+                if_parts.append(captures.copy())
+
+            new_if_keyword = 'ifelse' if keyword == 'else' else 'if'
+            new_if_stmt = (new_if_keyword, if_parts)
+
+            if keyword == 'endif':
+                grouped_stmts = prev_grouped_stmts
+                grouped_stmts.append(new_if_stmt)
+            else:
+                stack.append((new_if_stmt, prev_grouped_stmts))
+        else:
+            grouped_stmt = parsed_stmt
+            grouped_stmts.append(grouped_stmt)
+    assertFalse(stack)
+    return grouped_stmts
+
+def print_grouped_stmts(grouped_stmts, depth=0):
+    tabs = '  ' * depth
+    for grouped_stmt in grouped_stmts:
+        keyword, captures = grouped_stmt
+        if keyword in BLOCK_KEYWORDS:
+            parts = captures
+            print("{}{}".format(tabs, keyword))
+            for part in parts:
+                captures = part.copy()
+                block = captures.pop('block')
+                print("{}->{}".format(tabs, captures))
+                print_grouped_stmts(block, depth+1)
+        else:
+            print("{}{} -> {}".format(tabs, keyword, captures))
+
