@@ -2,7 +2,7 @@
 import re
 
 from .internals import Screen, Report, Type, Value, Var, Ref
-from .utils import assertEqual, assertFalse, assertTrue
+from .assertions import *
 
 
 def covers_pattern(s, pat):

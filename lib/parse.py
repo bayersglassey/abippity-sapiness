@@ -1,7 +1,7 @@
 
 import re
 from .lex import lex, to_stmts
-from .utils import assertFalse, assertEqual, assertIn
+from .assertions import *
 
 
 def isidentifier(s):

@@ -1,5 +1,5 @@
 
-from .utils import assertIn, assertTrue, assertEqual, assertGreaterEqual
+from .assertions import *
 
 
 
