@@ -30,19 +30,25 @@ def lex(text, verbose=False, syntax=False):
                 elif c == '`': lexeme += c; state = 'eat_string'
                 else: state = 'eat_word'; continue
             elif state == 'eat_char':
-                if c == '\'':
+                if c == '\'': state = 'eat_char_escaped'
+                else: lexeme += c
+            elif state == 'eat_char_escaped':
+                if c == '\'': lexeme += c; state = 'eat_char'
+                else:
                     lexemes.append(lexeme)
                     lexeme = ''
                     state = 'eat_whitespace'
-                else:
-                    lexeme += c
+                    continue
             elif state == 'eat_string':
-                if c == '`':
+                if c == '`': state = 'eat_string_escaped'
+                else: lexeme += c
+            elif state == 'eat_string_escaped':
+                if c == '`': lexeme += c; state = 'eat_string'
+                else:
                     lexemes.append(lexeme)
                     lexeme = ''
                     state = 'eat_whitespace'
-                else:
-                    lexeme += c
+                    continue
             elif state == 'eat_word':
                 if c.isspace() or c in SINGLE_CHAR_LEXEMES:
                     lexemes.append(lexeme)
