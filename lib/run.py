@@ -54,17 +54,17 @@ class Runner:
 
 
 
-    def run(self, parsed_stmts):
+    def run(self, grouped_stmts):
         verbose = self.verbose
         screen = self.screen
         vars = self.vars
 
-        if not parsed_stmts:
+        if not grouped_stmts:
             raise ValueError("Empty report!")
 
-        for i, parsed_stmt in enumerate(parsed_stmts):
-            if verbose: print("Running: {}".format(parsed_stmt))
-            keyword, captures = parsed_stmt
+        for i, grouped_stmt in enumerate(grouped_stmts):
+            if verbose: print("Running: {}".format(grouped_stmt))
+            keyword, captures = grouped_stmt
 
             if (i == 0) != (keyword == 'report'):
                 if keyword == 'report':

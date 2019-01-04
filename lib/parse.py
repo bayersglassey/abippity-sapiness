@@ -117,6 +117,13 @@ def parse(stmts, verbose=False, keywords=None):
 
     return parsed_stmts
 
+def group(parsed_stmts, verbose=False):
+    grouped_stmts = []
+    for parsed_stmt in parsed_stmts:
+        grouped_stmt = parsed_stmt
+        grouped_stmts.append(grouped_stmt)
+    return grouped_stmts
+
 def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
         verbose=False, depth=0):
     """Returns (ok, lexeme_i, captures) where:

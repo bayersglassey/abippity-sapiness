@@ -2,7 +2,7 @@
 
 from sys import stdin, stdout, argv
 from lib.lex import lex, to_stmts
-from lib.parse import get_keywords, print_syntax, parse
+from lib.parse import get_keywords, print_syntax, parse, group
 from lib.run import Runner
 
 if __name__ == '__main__':
@@ -21,6 +21,11 @@ if __name__ == '__main__':
     PARSE = '--parse' in args
     PARSE_VERBOSE = '--parse-verbose' in args
     PRINT_PARSED_STMTS = '--parsed-stmts' in args
+
+    # grouping options
+    GROUP = '--group' in args
+    GROUP_VERBOSE = '--group-verbose' in args
+    PRINT_GROUPED_STMTS = '--grouped-stmts' in args
 
     # running arguments
     RUN = '--run' in args
@@ -49,8 +54,11 @@ if __name__ == '__main__':
         for stmt in stmts:
             print(stmt)
 
-    # parse & run
-    if RUN: PARSE = True
+    # parse & group & run
+    if RUN:
+        PARSE = True
+    if PARSE:
+        GROUP = True
     if PARSE:
         # parse stmts
         parsed_stmts = parse(stmts, verbose=PARSE_VERBOSE)
@@ -59,12 +67,20 @@ if __name__ == '__main__':
             for parsed_stmt in parsed_stmts:
                 print(parsed_stmt)
 
-        # run parsed stmts
-        if RUN:
-            runner = Runner(40, 20, verbose=RUN_VERBOSE)
-            report = runner.run(parsed_stmts)
-            if PRINT_REPORT:
-                report.print()
-            if PRINT_VARS:
-                for varname, value in runner.vars.items():
-                    print("{}".format(value))
+        if GROUP:
+            # group stmts
+            grouped_stmts = group(parsed_stmts, verbose=GROUP_VERBOSE)
+            if PRINT_GROUPED_STMTS:
+                print("GROUPED STATEMENTS:")
+                for grouped_stmt in grouped_stmts:
+                    print(grouped_stmt)
+
+            # run grouped stmts
+            if RUN:
+                runner = Runner(40, 20, verbose=RUN_VERBOSE)
+                report = runner.run(grouped_stmts)
+                if PRINT_REPORT:
+                    report.print()
+                if PRINT_VARS:
+                    for varname, value in runner.vars.items():
+                        print("{}".format(value))
