@@ -33,6 +33,7 @@ if __name__ == '__main__':
     RUN_VERBOSE = '--run-verbose' in args
     PRINT_REPORT = '--report' in args
     PRINT_VARS = '--vars' in args
+    VERBOSE_BOOLS = '--verbose-bools' in args
 
     # get keywords
     keywords = get_keywords()
@@ -77,7 +78,8 @@ if __name__ == '__main__':
 
             # run grouped stmts
             if RUN:
-                runner = Runner(40, 20, verbose=RUN_VERBOSE)
+                runner = Runner(40, 20, verbose=RUN_VERBOSE,
+                    verbose_bools=VERBOSE_BOOLS)
                 report = runner.run(grouped_stmts)
                 if PRINT_REPORT:
                     report.print()

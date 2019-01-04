@@ -21,3 +21,8 @@ divide x by 5.
 write: / '/ 5 -> ', x.
 subtract 3 from x.
 write: / '- 3 -> ', x.
+
+assert 1 eq 1 and ( 0 eq 1 or 2 ne 3 )
+    and 3 le 4
+    and not 4 <= 1
+    and not ( ( ( 4 < 1 ) ) ).

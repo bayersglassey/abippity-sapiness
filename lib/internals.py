@@ -156,6 +156,18 @@ class Value:
         if type.is_textual():
             return len(self.data)
         raise NotImplemented()
+    def eq(self, other):
+        return self.data == other.data
+    def ne(self, other):
+        return self.data != other.data
+    def lt(self, other):
+        return self.data < other.data
+    def gt(self, other):
+        return self.data > other.data
+    def le(self, other):
+        return self.data <= other.data
+    def ge(self, other):
+        return self.data >= other.data
     def add(self, other):
         type = Type.numeric_lcd(self.type, other.type)
         return Value(type, self.data + other.data)

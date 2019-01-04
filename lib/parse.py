@@ -86,7 +86,8 @@ def parse(stmts, verbose=False, keywords=None):
     parsed_stmts = []
 
     for i, stmt in enumerate(stmts):
-        if '=' in stmt:
+        # if '=' in stmt:  # ????
+        if '=' in stmt and stmt.index('=') == 1:
             index = stmt.index('=')
             lhs = stmt[:index]
             rhs = stmt[index+1:]

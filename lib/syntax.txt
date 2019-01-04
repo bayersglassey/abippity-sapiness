@@ -112,7 +112,7 @@ ELSE.
 ENDIF.
 
 log_exp
-      { ( log_exp ) }
+      { ( sub_exp:log_exp ) }
     | { NOT +not sub_exp:log_exp}
     | { rel_exp }
     [{AND +and}|{OR +or}|{EQUIV +equiv} rhs_exp:log_exp].

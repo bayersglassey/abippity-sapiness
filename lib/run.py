@@ -7,8 +7,9 @@ from .utils import assertEqual, assertFalse
 
 class Runner:
 
-    def __init__(self, w=80, h=40, verbose=False):
+    def __init__(self, w=80, h=40, verbose=False, verbose_bools=False):
         self.verbose = verbose
+        self.verbose_bools = verbose_bools
 
         self.report_title = ''
         self.screen = Screen(w, h)
@@ -51,6 +52,71 @@ class Runner:
 
     def parse_ref(self, text):
         return Ref(self.vars[text])
+
+    def eval_bool(self, captures, depth=0):
+        """
+        log_exp
+              { ( sub_exp:log_exp ) }
+            | { NOT +not sub_exp:log_exp}
+            | { rel_exp }
+            [{AND +and}|{OR +or}|{EQUIV +equiv} rhs_exp:log_exp].
+
+        rel_exp {operand1 op:rel_op operand2}
+            | { operand [NOT +not] BETWEEN operand1 AND operand2 +between}
+            | { operand [NOT +not] IN seltab +in}
+            | {operand IS [NOT +not] INITIAL +initial}
+            | {ref     IS [NOT +not] BOUND +bound}
+            | {oref    IS [NOT +not] INSTANCE OF class +instance}
+            | {<fs>    IS [NOT +not] ASSIGNED +assigned}
+            | {para    IS [NOT +not] SUPPLIED +supplied}
+            | {para    IS [NOT +not] REQUESTED +requested}.
+
+        rel_op
+              {=|EQ +eq}|{<>|NE +ne}|{>|GT +gt}|{<|LT +lt}|{>|GE= +ge}|{<=|LE +le}
+            | {CO +co}|{CN +cn}|{CA +ca}|{NA +na}|{CS +cs}|{NS +ns}|{CP +cp}|{NP +np}
+            | {BYTE-CO +byte-co}|{BYTE-CN +byte-cn}|{BYTE-CA +byte-ca}|{BYTE-NA +byte-na}|{BYTE-CS +byte-cs}|{BYTE-NS +byte-ns}
+            | {O +o}|{Z +z}|{M +m}.
+        """
+        tabs = '  ' * depth
+        verbose = self.verbose_bools
+        if verbose: print("{}BOOL EVAL: {}".format(tabs, captures))
+
+        result = False
+
+        if 'sub_exp' in captures:
+            sub_exp = captures['sub_exp']
+            result = self.eval_bool(sub_exp, depth+1)
+            if 'not' in captures: result = not result
+        elif 'op' in captures:
+            op_dict = captures['op']
+            op = list(op_dict)[0]
+            lhs = self.parse_value(captures['operand1'])
+            rhs = self.parse_value(captures['operand2'])
+            if op == 'eq': result = lhs.eq(rhs)
+            elif op == 'ne': result = lhs.ne(rhs)
+            elif op == 'lt': result = lhs.lt(rhs)
+            elif op == 'gt': result = lhs.gt(rhs)
+            elif op == 'le': result = lhs.le(rhs)
+            elif op == 'ge': result = lhs.ge(rhs)
+            else:
+                raise AssertionError("Weird comparison: {}"
+                    .format(captures))
+
+        if 'rhs_exp' in captures:
+            rhs_exp = captures['rhs_exp']
+            rhs_result = self.eval_bool(rhs_exp, depth+1)
+            if 'and' in captures:
+                result = result and rhs_result
+            elif 'or' in captures:
+                result = result or rhs_result
+            elif 'equiv' in captures:
+                result = result == rhs_result
+            else:
+                raise AssertionError(
+                    "Weird right-hand side of condition: {}"
+                    .format(captures))
+
+        return result
 
 
 
@@ -127,7 +193,11 @@ class Runner:
                 value = dest.get().div(src)
                 dest.set(value)
             elif keyword == 'assert':
-                pass
+                cond = self.eval_bool(captures)
+                if not cond:
+                    raise AssertionError("Failed ABAP assertion at "
+                        "grouped stmt {}: {}"
+                        .format(i, captures))
             elif keyword == 'write':
                 at = captures.get('at')
                 newline = at and at.startswith('/')
