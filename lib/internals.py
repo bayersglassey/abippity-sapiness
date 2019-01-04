@@ -12,7 +12,7 @@ DEFAULT_BASETYPE_LENGTHS = {'c': 1, 'n': 1}
 FORCED_BASETYPE_LENGTHS = {'d': 8, 't': 6}
 DYNAMIC_LENGTH_BASETYPES = {'string', 'xstring'}
 NUMERIC_BASETYPES = {'n', 'i', 'f', 'p'}
-TEXTUAL_BASETYPES = {'c', 'string', 'xstring'}
+TEXTUAL_BASETYPES = {'c', 'd', 't', 'string', 'xstring'}
 """
 from https://wiki.scn.sap.com/wiki/display/ABAP/ABAP+Types:
 Elementary Types supported by ABAP
@@ -180,6 +180,15 @@ class Value:
                 ', '.join("{} = {}".format(name, value)
                 for name, value in self.fields.items()))
         return "Value({} TYPE {})".format(repr(self.data), self.type)
+    @classmethod
+    def create_struct(Value, items):
+        type = Type('struct')
+        for name, value in items:
+            type.add_field(name, value.type)
+        struct_value = Value(type)
+        for name, value in items:
+            struct_value.set_field(name, value)
+        return struct_value
     def is_numeric(self): return self.type.is_numeric()
     def is_textual(self): return self.type.is_textual()
     def is_struct(self): return self.type.is_struct()
@@ -191,7 +200,7 @@ class Value:
             return len(str(self.data))
         if type.is_textual():
             return len(self.data)
-        raise NotImplemented()
+        raise NotImplementedError()
     def eq(self, other):
         return self.data == other.data
     def ne(self, other):
@@ -258,7 +267,7 @@ class Var:
 
 class Ref:
     def __init__(self):
-        raise NotImplemented("Don't use Ref directly, use its subclasses!")
+        raise NotImplementedError("Don't use Ref directly, use its subclasses!")
     def __repr__(self):
         return "Ref({})".format(self)
 

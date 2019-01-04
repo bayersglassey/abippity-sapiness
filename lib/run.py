@@ -3,7 +3,10 @@ import re
 
 from .internals import (Screen, Report, Type, Value, Var, VarRef,
     StructFieldRef)
+from .datetimes import get_local_now
 from .assertions import *
+
+SYSTEM_VAR_NAMES = {'sy'}
 
 
 def covers_pattern(s, pat):
@@ -47,14 +50,50 @@ class Runner:
 
     def add_var(self, name, type, value=None):
         vars = self.vars
+        assertNotIn(name, SYSTEM_VAR_NAMES)
         assertNotIn(name, vars)
         var = Var(name, type, value)
         vars[var.name] = var
 
     def get_var(self, name):
         vars = self.vars
+        if name in SYSTEM_VAR_NAMES:
+            value = self.get_system_value(name)
+            # HACK: We return a freshly-created variable...
+            return Var(name, value.type, value)
         assertIn(name, vars)
         return vars[name]
+
+    def get_system_value(self, name):
+        if name == 'sy':
+
+            # MAYBE TODO: Just have self.sy_value, constantly update it,
+            # or have it magically update itself whenever you request a
+            # field... how does ABAP do this?
+
+            int_type = Type('i')
+            date_type = Type('d')
+            time_type = Type('t')
+
+            local_now = get_local_now()
+            date_value = Value(date_type, local_now.strftime('%Y%m%d'))
+            time_value = Value(time_type, local_now.strftime('%H%M%S'))
+
+            sy_data = [
+                # general
+                ('linsz', Value(int_type, self.screen.w)),
+
+                # date & time
+                ('datum', date_value),
+                ('datlo', date_value),
+                ('uzeit', time_value),
+                ('timlo', time_value),
+            ]
+
+            return Value.create_struct(sy_data)
+        else:
+            raise NotImplementedError("System var: {}"
+                .format(name))
 
     def parse_type(self, text, length=None):
         type = Type(text, length)
@@ -334,7 +373,7 @@ class Runner:
             elif keyword == 'skip':
                 to_line = captures.get('line')
                 if to_line is not None:
-                    raise NotImplemented("SKIP TO LINE")
+                    raise NotImplementedError("SKIP TO LINE")
                 else:
                     n = captures.get('n', 1)
                     for i in range(n):
