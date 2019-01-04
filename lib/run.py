@@ -81,7 +81,9 @@ class Runner:
         verbose = self.verbose_bools
         if verbose: print("{}BOOL EVAL: {}".format(tabs, captures))
 
-        result = False
+        # NOTE: result currently needs to be True by default, because
+        # ELSE-blocks are implemented as empty captures.
+        result = True
 
         if 'sub_exp' in captures:
             sub_exp = captures['sub_exp']
@@ -120,19 +122,20 @@ class Runner:
 
 
 
-    def run(self, grouped_stmts):
+    def run(self, grouped_stmts, depth=0, toplevel=False):
+        tabs = '  ' * depth
         verbose = self.verbose
         screen = self.screen
         vars = self.vars
 
-        if not grouped_stmts:
+        if toplevel and not grouped_stmts:
             raise ValueError("Empty report!")
 
         for i, grouped_stmt in enumerate(grouped_stmts):
-            if verbose: print("Running: {}".format(grouped_stmt))
+            if verbose: print("{}Running: {}".format(tabs, grouped_stmt))
             keyword, captures = grouped_stmt
 
-            if (i == 0) != (keyword == 'report'):
+            if (toplevel and i == 0) != (keyword == 'report'):
                 if keyword == 'report':
                     raise ValueError("Unexpected 'report' "
                         "(should come exactly once, at top of file)")
@@ -193,17 +196,24 @@ class Runner:
                 value = dest.get().div(src)
                 dest.set(value)
             elif keyword == 'assert':
-                cond = self.eval_bool(captures)
+                cond = self.eval_bool(captures, depth+1)
                 if not cond:
                     raise AssertionError("Failed ABAP assertion at "
                         "grouped stmt {}: {}"
                         .format(i, captures))
+            elif keyword == 'if':
+                parts = captures
+                for part in parts:
+                    cond = self.eval_bool(part, depth+1)
+                    if cond:
+                        block = part['block']
+                        self.run(block, depth+1)
+                        break
             elif keyword == 'write':
                 at = captures.get('at')
                 newline = at and at.startswith('/')
 
-                if newline:
-                #if newline and screen.x > 0:  # ??????
+                if newline and screen.x > 0:
                     screen.newline()
 
                 dobj = captures['dobj']

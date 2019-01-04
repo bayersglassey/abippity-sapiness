@@ -8,16 +8,16 @@ DATA: A TYPE I VALUE 115,
 
 DATA: A TYPE I.
       IF A IS INITIAL.
-      WRITE: / 'A is assigned'.
+      WRITE: / 'A is initial'.
       ELSEIF A EQ 3.
-      WRITE: / 'A is three'.
+      WRITE: / 'A... it''s three!'.
       ELSE.
-      WRITE: / 'A ain''t assigned'.
+      WRITE: / 'A is some other thing'.
       ENDIF.
 
-DATA: P(10) TYPE C VALUE 'APPLE',
-      Q(10) TYPE C VALUE 'CHAIR'.
-      IF P CA Q.
-      WRITE: / 'P contains at least one character of Q'.
-      ENDIF.
+*DATA: P(10) TYPE C VALUE 'APPLE',
+*      Q(10) TYPE C VALUE 'CHAIR'.
+*      IF P CA Q.
+*      WRITE: / 'P contains at least one character of Q'.
+*      ENDIF.
 

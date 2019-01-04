@@ -80,7 +80,7 @@ if __name__ == '__main__':
             if RUN:
                 runner = Runner(40, 20, verbose=RUN_VERBOSE,
                     verbose_bools=VERBOSE_BOOLS)
-                report = runner.run(grouped_stmts)
+                report = runner.run(grouped_stmts, toplevel=True)
                 if PRINT_REPORT:
                     report.print()
                 if PRINT_VARS:
