@@ -2,7 +2,36 @@
 import re
 
 from .internals import Screen, Report, Type, Value, Var, Ref
-from .utils import assertEqual, assertFalse
+from .utils import assertEqual, assertFalse, assertTrue
+
+
+def covers_pattern(s, pat):
+    """It's like a regex or a glob... kind of.
+
+    NOTE: In the following, "operand1" corresponds to our "s", "operand2"
+    to our "pattern".
+    from https://help.sap.com/doc/abapdocu_750_index_htm/7.50/en-US/abenlogexp_strings.htm:
+      Covers Pattern: True, if the content of operand1 fits the pattern in
+      operand2.
+      Wildcard characters can be used to create the operand2 pattern, where
+      "*" represents any character string (including a blank string) and "+"
+      represents any character.
+      It is not case-sensitive.
+      Trailing blanks in the left operand are respected.
+      If the comparison is true, sy-fdpos contains the offset of operand2 in
+      operand1.
+      Here, leading wildcard characters "*" in operand2 are ignored if
+      operand2 also contains other characters.
+      If the comparison is false, sy-fdpos contains the length of operand1.
+      Characters in operand2 can be selected for direct comparisons by
+      prefixing them with the escape character "#".
+      For characters flagged in this way in operand2, the operator is
+      case-sensitive.
+      Also, wildcard characters and the escape character are not subject to
+      special handling and trailing blanks are relevant."""
+
+    # nnnnope
+    return re.fullmatch(pat, s) is not None
 
 
 class Runner:
@@ -100,6 +129,29 @@ class Runner:
             elif op == 'gt': result = lhs.gt(rhs)
             elif op == 'le': result = lhs.le(rhs)
             elif op == 'ge': result = lhs.ge(rhs)
+            elif op in {'co', 'cn', 'ca', 'na', 'cs', 'ns', 'cp', 'np'}:
+                # See https://help.sap.com/doc/abapdocu_750_index_htm/7.50/en-US/abenlogexp_strings.htm
+                assertTrue(lhs.type.is_textual())
+                assertTrue(lhs.type.is_textual())
+                if op == 'co': # Contains Only
+                    result = not bool(set(lhs.data) - set(rhs.data))
+                elif op == 'cn': # Contains Not Only
+                    result = bool(set(lhs.data) - set(rhs.data))
+                elif op == 'ca': # Contains Any
+                    result = bool(set(lhs.data) & set(rhs.data))
+                elif op == 'cn': # Contains Not Any
+                    result = not bool(set(lhs.data) & set(rhs.data))
+                elif op == 'cs': # Contains String
+                    result = rhs.data in lhs.data
+                elif op == 'ns': # Contains No String
+                    result = rhs.data not in lhs.data
+                elif op == 'cp': # Covers Pattern
+                    result = covers_pattern(lhs.data, rhs.data)
+                elif op == 'np': # No Pattern
+                    result = not covers_pattern(lhs.data, rhs.data)
+                else:
+                    raise AssertionError("Weird textual comparison: {}"
+                        .format(captures))
             else:
                 raise AssertionError("Weird comparison: {}"
                     .format(captures))

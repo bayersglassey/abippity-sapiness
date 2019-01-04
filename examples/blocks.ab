@@ -15,9 +15,8 @@ DATA: A TYPE I.
       WRITE: / 'A is some other thing'.
       ENDIF.
 
-*DATA: P(10) TYPE C VALUE 'APPLE',
-*      Q(10) TYPE C VALUE 'CHAIR'.
-*      IF P CA Q.
-*      WRITE: / 'P contains at least one character of Q'.
-*      ENDIF.
-
+DATA: P(10) TYPE C VALUE 'APPLE',
+      Q(10) TYPE C VALUE 'CHAIR'.
+      IF P CA Q.
+      WRITE: / 'P contains at least one character of Q'.
+      ENDIF.
