@@ -58,9 +58,9 @@ if __name__ == '__main__':
 
     # parse & group & run
     if RUN:
-        PARSE = True
-    if PARSE:
         GROUP = True
+    if GROUP:
+        PARSE = True
     if PARSE:
         # parse stmts
         parsed_stmts = parse(stmts, verbose=PARSE_VERBOSE)

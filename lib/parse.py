@@ -3,8 +3,6 @@ import re
 from .lex import lex, to_stmts
 from .utils import assertFalse, assertEqual, assertIn
 
-BLOCK_KEYWORDS = {'if', 'case'}
-
 
 def isidentifier(s):
     return s and all(c == '_' or c.isalnum() for c in s)
@@ -258,6 +256,17 @@ def group(parsed_stmts, verbose=False):
                 grouped_stmts.append(new_if_stmt)
             else:
                 stack.append((new_if_stmt, prev_grouped_stmts))
+        elif keyword == 'data' and 'begin' in captures:
+            data_stmt = ('data_begin', captures.copy())
+            stack.append((data_stmt, grouped_stmts))
+            grouped_stmts = []
+        elif keyword == 'data' and 'end' in captures:
+            data_stmt, prev_grouped_stmts = stack.pop()
+            data_keyword, data_captures = data_stmt
+            assertEqual(data_keyword, 'data_begin')
+            data_captures['block'] = grouped_stmts
+            grouped_stmts = prev_grouped_stmts
+            grouped_stmts.append(data_stmt)
         else:
             grouped_stmt = parsed_stmt
             grouped_stmts.append(grouped_stmt)
@@ -268,7 +277,7 @@ def print_grouped_stmts(grouped_stmts, depth=0):
     tabs = '  ' * depth
     for grouped_stmt in grouped_stmts:
         keyword, captures = grouped_stmt
-        if keyword in BLOCK_KEYWORDS:
+        if keyword in {'if', 'case'}:
             parts = captures
             print("{}{}".format(tabs, keyword))
             for part in parts:
@@ -276,6 +285,11 @@ def print_grouped_stmts(grouped_stmts, depth=0):
                 block = captures.pop('block')
                 print("{}->{}".format(tabs, captures))
                 print_grouped_stmts(block, depth+1)
+        elif keyword in {'data_begin'}:
+            captures = captures.copy()
+            block = captures.pop('block')
+            print("{}{} -> {}".format(tabs, keyword, captures))
+            print_grouped_stmts(block, depth+1)
         else:
             print("{}{} -> {}".format(tabs, keyword, captures))
 

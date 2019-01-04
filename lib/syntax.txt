@@ -71,12 +71,12 @@ DATA ref { {TYPE REF TO type}
            [VALUE IS INITIAL +initial]
            [READ-ONLY +readonly].
 
-DATA BEGIN OF struc [READ-ONLY +readonly].
+DATA BEGIN +begin OF struc [READ-ONLY +readonly].
 *     ...
 *     DATA comp ...
 *     INCLUDE {TYPE|STRUCTURE} ...
 *     ...
-DATA END OF struc.
+DATA END +end OF struc.
 
 DATA itab { {TYPE {STANDARD +standard}|{SORTED +sorted}|{HASHED +hashed} TABLE OF [REF TO +refto] type}
           | {LIKE {STANDARD +standard}|{SORTED +sorted}|{HASHED +hashed} TABLE OF dobj} }

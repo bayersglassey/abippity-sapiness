@@ -1,0 +1,12 @@
+
+data: begin of point,
+    x type i,
+    y type i,
+end of point.
+
+move: 3 to point-x, 4 to point-y.
+write: / 'x:', point-x, 'y:', point-y.
+
+if point-x lt point-y.
+    write / 'x < y'.
+endif.
