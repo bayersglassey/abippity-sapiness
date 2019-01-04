@@ -264,6 +264,7 @@ def group(parsed_stmts, verbose=False):
             data_stmt, prev_grouped_stmts = stack.pop()
             data_keyword, data_captures = data_stmt
             assertEqual(data_keyword, 'data_begin')
+            assertEqual(captures['struc'], data_captures['struc'])
             data_captures['block'] = grouped_stmts
             grouped_stmts = prev_grouped_stmts
             grouped_stmts.append(data_stmt)

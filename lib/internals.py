@@ -1,9 +1,12 @@
 
+from collections import OrderedDict
+
 from .assertions import *
 
 
 
-BASETYPES = {'x', 'c', 'n', 'd', 't', 'i', 'f', 'p', 'string', 'xstring'}
+BASETYPES = {'x', 'c', 'n', 'd', 't', 'i', 'f', 'p',
+    'string', 'xstring', 'struct'}
 FIXED_LENGTH_BASETYPES = {'x', 'c', 'n', 'p'}
 DEFAULT_BASETYPE_LENGTHS = {'c': 1, 'n': 1}
 FORCED_BASETYPE_LENGTHS = {'d': 8, 't': 6}
@@ -83,7 +86,13 @@ class Type:
             length = FORCED_BASETYPE_LENGTHS[basetype]
         self.basetype = basetype
         self.length = length
+        if self.is_struct():
+            self.fields = OrderedDict()
     def __str__(self):
+        if self.is_struct():
+            return "BEGIN {} END".format(
+                ' '.join("{} TYPE {},".format(name, type)
+                    for name, type in self.fields.items()))
         return "{}".format(self.basetype)
     def __repr__(self):
         return "Type({})".format(self)
@@ -94,7 +103,7 @@ class Type:
         assertTrue(type1.is_numeric())
         assertTrue(type2.is_numeric())
         return type1
-    def convert(self, value):
+    def convert(self, value, allow_structs=False):
 
         # WARNING: This method needs a loooot of work.
         # See: https://help.sap.com/doc/abapdocu_752_index_htm/7.52/en-US/abenconversion_rules.htm
@@ -106,22 +115,26 @@ class Type:
         #     If one field is of type N and the other is of type C or X, both the fields are converted to type P.
         #     If one field is of type C and the other is of type X, the X type is converted to type C.
 
-        self_basetype = self.basetype
-        value_type = value.type
-        value_basetype = value_type.basetype
+        if not allow_structs:
+            if self.is_struct():
+                raise AssertionError("Struct conversion not allowed: "
+                    "{} to {}"
+                    .format(repr(value), repr(self)))
 
         if self.length is not None:
             assertGreaterEqual(self.length, value.get_length())
 
-        if self.is_numeric() and value_type.is_numeric():
+        if self.is_numeric() and value.is_numeric():
             return Value(self, value.data)
 
-        if self.is_textual() and value_type.is_textual():
+        if self.is_textual() and value.is_textual():
             return Value(self, value.data)
 
-        assertEqual(self_basetype, value_basetype)
+        assertEqual(self.basetype, value.type.basetype)
         return value
 
+    def is_struct(self):
+        return self.basetype == 'struct'
     def is_numeric(self):
         return self.basetype in NUMERIC_BASETYPES
     def is_textual(self):
@@ -139,14 +152,37 @@ class Type:
             raise ValueError("Not implemented for type: {}"
                 .format(self))
 
+    def add_field(self, name, type):
+        assertTrue(self.is_struct())
+        assertNotIn(name, self.fields)
+        self.fields[name] = type
+
+
 class Value:
-    def __init__(self, type, data):
+    def __init__(self, type, data=None):
         self.type = type
-        self.data = data
+        if type.is_struct():
+            self.fields = OrderedDict(
+                (name, Value(subtype))
+                for name, subtype in type.fields.items())
+        else:
+            if data is None: data = type.get_initial()
+            self.data = data
     def __str__(self):
+        if self.is_struct():
+            return "BEGIN {} END".format(
+                ' '.join("{} = {},".format(name, value)
+                    for name, value in self.fields.items()))
         return "{}".format(repr(self.data))
     def __repr__(self):
+        if self.is_struct():
+            return "Value(BEGIN {} END)".format(
+                ', '.join("{} = {}".format(name, value)
+                for name, value in self.fields.items()))
         return "Value({} TYPE {})".format(repr(self.data), self.type)
+    def is_numeric(self): return self.type.is_numeric()
+    def is_textual(self): return self.type.is_textual()
+    def is_struct(self): return self.type.is_struct()
     def get_length(self):
         type = self.type
         if type.length is not None:
@@ -188,14 +224,23 @@ class Value:
             if length is not None and not nozero:
                 s = s.rjust(length, '0')
         return s
+    def get_field(self, name):
+        assertTrue(self.is_struct())
+        assertIn(name, self.fields)
+        return self.fields[name]
+    def set_field(self, name, value, allow_structs=False):
+        assertTrue(self.is_struct())
+        assertIn(name, self.fields)
+        value = self.type.fields[name].convert(value,
+            allow_structs=allow_structs)
+        self.fields[name] = value
 
 class Var:
     def __init__(self, name, type, value=None):
         self.name = name.lower()
         self.type = type
-        if value is None:
-            value = type.get_initial()
-        self.set(value)
+        if value is None: value = Value(type)
+        self.set(value, allow_structs=True)
     def __str__(self):
         s = "{}".format(self.name)
         length = self.type.length
@@ -206,19 +251,35 @@ class Var:
         return "Var({})".format(self)
     def get(self):
         return self.value
-    def set(self, value):
-        value = self.type.convert(value)
+    def set(self, value, allow_structs=False):
+        value = self.type.convert(value,
+            allow_structs=allow_structs)
         self.value = value
 
 class Ref:
+    def __init__(self):
+        raise NotImplemented("Don't use Ref directly, use its subclasses!")
+    def __repr__(self):
+        return "Ref({})".format(self)
+
+class VarRef:
     def __init__(self, var):
         self.var = var
     def __str__(self):
         return "REF TO {}".format(self.var)
-    def __repr__(self):
-        return "Ref({})".format(self)
     def get(self):
         return self.var.get()
     def set(self, value):
         self.var.set(value)
+
+class StructFieldRef:
+    def __init__(self, struct, field_name):
+        self.struct = struct
+        self.field_name = field_name
+    def __str__(self):
+        return "REF TO FIELD {} OF {}".format(self.field_name, self.struct)
+    def get(self):
+        return self.struct.get_field(self.field_name)
+    def set(self, value):
+        self.struct.set_field(self.field_name, value)
 

@@ -1,7 +1,8 @@
 
 import re
 
-from .internals import Screen, Report, Type, Value, Var, Ref
+from .internals import (Screen, Report, Type, Value, Var, VarRef,
+    StructFieldRef)
 from .assertions import *
 
 
@@ -44,9 +45,57 @@ class Runner:
         self.screen = Screen(w, h)
         self.vars = {}
 
+    def add_var(self, name, type, value=None):
+        vars = self.vars
+        assertNotIn(name, vars)
+        var = Var(name, type, value)
+        vars[var.name] = var
+
+    def get_var(self, name):
+        vars = self.vars
+        assertIn(name, vars)
+        return vars[name]
+
     def parse_type(self, text, length=None):
         type = Type(text, length)
         return type
+
+    def parse_data(self, keyword, captures):
+        if keyword == 'data':
+            var_text = captures['var']
+            if 'dobj' in captures:
+                dobj_text = captures['dobj']
+                like_value = self.parse_value(dobj_text)
+                type = like_value.type
+                name = var_text
+            else:
+                type_text = captures['abap_type']
+                len_text = captures.get('len')
+                name, type = self.parse_var(var_text, type_text, len_text)
+
+            value = None
+            value_text = captures.get('val')
+            if value_text is not None:
+                value = self.parse_value(value_text)
+        elif keyword == 'data_begin':
+            name = captures['struc']
+            type = Type('struct')
+
+            fields = []
+            for field_keyword, field_captures in captures['block']:
+                assertIn(field_keyword, {'data', 'data_begin'})
+                fields.append(self.parse_data(field_keyword, field_captures))
+            for field_name, field_type, field_value in fields:
+                type.add_field(field_name, field_type)
+
+            value = Value(type)
+            for field_name, field_type, field_value in fields:
+                if field_value is None: continue
+                value.set_field(field_name, field_value,
+                    allow_structs=True)
+        else:
+            raise AssertionError("Weird keyword: {}".format(keyword))
+        return name, type, value
 
     def parse_var(self, text, type_text, len_text=None):
         match = re.fullmatch(
@@ -59,7 +108,7 @@ class Runner:
         if len_text is not None: length = int(len_text)
         if length: length = int(length)
         type = self.parse_type(type_text, length)
-        return Var(name, type)
+        return name, type
 
     def parse_value(self, text):
         c0 = text[0:1]
@@ -77,10 +126,24 @@ class Runner:
             return Value(self.parse_type('string'), text[1:])
         if c0.isdigit():
             return Value(self.parse_type('i'), int(text))
-        return self.vars[text].get()
+
+        parts = text.split('-')
+        var = self.get_var(parts[0])
+        value = var.get()
+        for part in parts[1:]:
+            value = value.get_field(part)
+        return value
 
     def parse_ref(self, text):
-        return Ref(self.vars[text])
+        parts = text.split('-')
+        if len(parts) > 1:
+            var = self.get_var(parts[0])
+            value = var.get()
+            for part in parts[1:-1]:
+                value = value.get_field(part)
+            return StructFieldRef(value, parts[-1])
+        else:
+            return VarRef(self.get_var(text))
 
     def eval_bool(self, captures, depth=0):
         """
@@ -195,22 +258,9 @@ class Runner:
                     raise ValueError("Missing 'report' "
                         "(should come exactly once, at top of file)")
 
-            if keyword == 'data':
-                var_text = captures['var']
-                if 'dobj' in captures:
-                    dobj_text = captures['dobj']
-                    like_value = self.parse_value(dobj_text)
-                    type = like_value.type
-                    var = Var(var_text, type)
-                else:
-                    type_text = captures['abap_type']
-                    len_text = captures.get('len')
-                    var = self.parse_var(var_text, type_text, len_text)
-                value_text = captures.get('val')
-                if value_text is not None:
-                    value = self.parse_value(value_text)
-                    var.set(value)
-                vars[var.name] = var
+            if keyword in {'data', 'data_begin'}:
+                name, type, value = self.parse_data(keyword, captures)
+                self.add_var(name, type, value)
             elif keyword == 'move':
                 src_text = captures['source']
                 dest_text = captures['destination']
