@@ -8,7 +8,7 @@ DATA: A TYPE I VALUE 115,
       B TYPE I VALUE 119.
       IF A LT B.
       WRITE: / 'A is less than B'.
-      ENDIF
+      ENDIF.
 
 DATA: A TYPE I.
       IF A IS INITIAL.

@@ -4,6 +4,10 @@ from .lex import lex, to_stmts
 from .utils import assertFalse
 
 
+def isidentifier(s):
+    return s and all(c == '_' or c.isalnum() for c in s)
+
+
 def get_keywords():
     import os
     filepath = os.path.join(os.path.dirname(__file__), 'syntax.txt')
@@ -157,13 +161,27 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
                 sub_syntax, verbose, depth+1)
             if not ok: return False, lexeme_i, captures
             captures.update(sub_captures)
-    elif syntax_part[0] == '+' and syntax_part != '+':
+    elif syntax_part[:1] == '+' and isidentifier(syntax_part[1:]):
         captures[syntax_part[1:]] = True
     else:
-        is_many = syntax_part[-1] == '+' and syntax_part != '+'
-        is_keyword = syntax_part.upper() == syntax_part
+        is_named = ':' in syntax_part
+        if is_named:
+            capture_name, syntax_part = syntax_part.split(':')
+        else:
+            capture_name = syntax_part
+
+        if syntax_part == '<at>':
+            if not is_named: capture_name = 'at'
+
+        is_many = syntax_part[-1:] == '+' and isidentifier(syntax_part[:-1])
         if is_many:
             syntax_part = syntax_part[:-1]
+            if not is_named:
+                # get rid of trailing '+'
+                capture_name = syntax_part
+
+        is_keyword = syntax_part.upper() == syntax_part
+
         if is_keyword or syntax_part not in keywords:
             if lexeme_i >= len(stmt):
                 return False, lexeme_i, captures
@@ -174,12 +192,12 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
                     r'/?([0-9]+)?(\([0-9]+|(\*\*?)\))?', lexeme)
                 if not match:
                     return False, lexeme_i, captures
-                captures['at'] = lexeme
+                captures[capture_name] = lexeme
             elif is_keyword:
                 if lexeme.upper() != syntax_part:
                     return False, lexeme_i, captures
             else:
-                captures[syntax_part] = lexeme
+                captures[capture_name] = lexeme
         elif is_many:
             sub_syntax = keywords[syntax_part]
             many_captures = []
@@ -191,12 +209,13 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
                     lexeme_i = new_lexeme_i
                     many_captures.append(sub_captures)
                 else: break
-            captures[syntax_part] = many_captures
+            captures[capture_name] = many_captures
         else:
             sub_syntax = keywords[syntax_part]
             ok, lexeme_i, sub_captures = parse_stmt(
                 stmt, lexeme_i, keywords,
                 sub_syntax, verbose, depth+1)
             if not ok: return False, lexeme_i, captures
-            captures.update(sub_captures)
+            if is_named: captures[capture_name] = sub_captures
+            else: captures.update(sub_captures)
     return True, lexeme_i, captures

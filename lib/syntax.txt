@@ -105,3 +105,31 @@ DATA struc TYPE struc_type BOXED +boxed.
 MOVE {[EXACT +exact] source  TO destination}
    | {               source ?TO destination +qmark}.
 
+
+IF log_exp.
+ELSEIF log_exp.
+ELSE.
+ENDIF.
+
+log_exp
+      { ( log_exp ) }
+    | { NOT +not sub_exp:log_exp}
+    | { rel_exp }
+    [{AND +and}|{OR +or}|{EQUIV +equiv} rhs_exp:log_exp].
+
+rel_exp {operand1 op:rel_op operand2}
+    | { operand [NOT +not] BETWEEN operand1 AND operand2 +between}
+    | { operand [NOT +not] IN seltab +in}
+    | {operand IS [NOT +not] INITIAL +initial}
+    | {ref     IS [NOT +not] BOUND +bound}
+    | {oref    IS [NOT +not] INSTANCE OF class +instance}
+    | {<fs>    IS [NOT +not] ASSIGNED +assigned}
+    | {para    IS [NOT +not] SUPPLIED +supplied}
+    | {para    IS [NOT +not] REQUESTED +requested}.
+
+rel_op
+      {=|EQ +eq}|{<>|NE +ne}|{>|GT +gt}|{<|LT +lt}|{>|GE= +ge}|{<=|LE +le}
+    | {CO +co}|{CN +cn}|{CA +ca}|{NA +na}|{CS +cs}|{NS +ns}|{CP +cp}|{NP +np}
+    | {BYTE-CO +byte-co}|{BYTE-CN +byte-cn}|{BYTE-CA +byte-ca}|{BYTE-NA +byte-na}|{BYTE-CS +byte-cs}|{BYTE-NS +byte-ns}
+    | {O +o}|{Z +z}|{M +m}.
+
