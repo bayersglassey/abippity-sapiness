@@ -1,6 +1,7 @@
 
 import io
 
+from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.views.generic import TemplateView
 
@@ -42,6 +43,12 @@ class DocumentDetailView(DetailView):
         # From DetailView.get:
         doc = self.object = self.get_object()
         context = self.get_context_data(object=self.object)
+
+        # Make sure user is allowed to see the document:
+        if not doc.readable_for_user(request.user):
+            msg = ("You don't have permission to see this "
+                "document: {}".format(doc.title))
+            return HttpResponse(msg, status=403)
 
         # User clicks "RUN":
         if 'run' in request.POST:

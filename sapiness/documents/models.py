@@ -21,7 +21,7 @@ class Document(models.Model):
         return "<Document {}: {}>".format(self.id, self)
 
     def readable_for_user(self, user):
-        return self.public_read or self.user == user
+        return self.public_read or not self.user or self.user == user
 
     def writable_for_user(self, user):
 
@@ -29,4 +29,4 @@ class Document(models.Model):
         # Somewhat arbitrary. *shrug*
         if user is None: return False
 
-        return self.public_write or self.user == user
+        return self.public_write or not self.user or self.user == user
