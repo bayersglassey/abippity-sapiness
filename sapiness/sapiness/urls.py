@@ -23,6 +23,7 @@ class HomeView(TemplateView):
 
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^documents/', include('documents.urls', namespace='documents')),
     url(r'^admin/', admin.site.urls),
 ]
 

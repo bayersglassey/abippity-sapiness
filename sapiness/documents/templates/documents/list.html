@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <h2>Documents</h2>
+    <ul>
+        {% for document in document_list %}
+        <li><a href="{% url 'documents:detail' document.pk %}">{{ document }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}
