@@ -34,9 +34,11 @@ def update_example_docs(**kwargs):
     """Only works from within the git repo currently containing abippity
     and sapiness - the example files live with abippity."""
 
+
     if 'user' not in kwargs:
         # hardcoded username, good times
-        user = User.objects.filter(username='admin').first()
+        user, created = User.objects.get_or_create(username='tutor')
+        #user = User.objects.filter(username='tutor').first()
         kwargs['user'] = user
 
     if 'unique' not in kwargs: kwargs['unique'] = True

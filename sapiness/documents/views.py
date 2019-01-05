@@ -4,11 +4,14 @@ import io
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.views.generic import TemplateView
+from django.contrib.auth import get_user_model
 
 from abipitty.main import main, parse_options, list_args
 from abipitty.lib.parse import get_keywords_text
 
 from .models import Document
+
+User = get_user_model()
 
 
 class ArgsHelpView(TemplateView):
@@ -29,6 +32,19 @@ class KeywordsHelpView(TemplateView):
 class DocumentListView(ListView):
     model = Document
     template_name = 'documents/list.html'
+    def get_context_data(self):
+        context = super().get_context_data()
+        username = self.request.GET.get('owner__username')
+        if username is not None:
+            owner = User.objects.filter(username=username).first()
+            context['owner'] = owner
+        return context
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        username = self.request.GET.get('owner__username')
+        if username is not None:
+            queryset = queryset.filter(user__username=username)
+        return queryset
 
 class DocumentDetailView(DetailView):
     model = Document
