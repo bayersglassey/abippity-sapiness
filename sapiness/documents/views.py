@@ -68,7 +68,14 @@ class DocumentDetailView(DetailView):
         output_io = io.StringIO()
 
         # Run abipitty interpreter
-        main(text, options, file=output_io)
+        try:
+            main(text, options, file=output_io)
+        except (ValueError, TypeError, AssertionError) as e:
+            # TODO: Make AbippityException or whatever, so we don't
+            # accidentally show users errors they were never meant to
+            # see...
+            msg = "*** ERROR: {}".format(e)
+            output_io.write(msg)
 
         # Read the output of abipitty.main, stick it in the context to
         # be rendered
