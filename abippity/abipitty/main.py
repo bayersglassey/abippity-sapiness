@@ -44,7 +44,7 @@ def parse_options(args):
     return options
 
 
-def main(text, options, keywords=None):
+def main(text, options, keywords=None, file=None):
 
     # option chaining
     RUN = options.get('RUN')
@@ -55,11 +55,11 @@ def main(text, options, keywords=None):
     # get keywords
     if keywords is None: keywords = get_keywords()
     if options.get('PRINT_KEYWORDS'):
-        print("KEYWORDS:")
+        print("KEYWORDS:", file=file)
         for keyword, syntax in keywords.items():
-            print()
-            print("{}:".format(keyword))
-            print_syntax(syntax, 1)
+            print(file=file)
+            print("{}:".format(keyword), file=file)
+            print_syntax(syntax, 1, file=file)
 
     if LEX:
         # lex text into lexemes
@@ -67,7 +67,7 @@ def main(text, options, keywords=None):
             syntax=options.get('LEX_SYNTAX'))
         if options.get('PRINT_LEXEMES'):
             for lexeme in lexemes:
-                print(lexeme)
+                print(lexeme, file=file)
 
 
     if PARSE:
@@ -75,37 +75,38 @@ def main(text, options, keywords=None):
         stmts = to_stmts(lexemes)
         if options.get('PRINT_STMTS'):
             for stmt in stmts:
-                print(stmt)
+                print(stmt, file=file)
 
         # parse stmts (transform lists of lexemes into pairs of
         # (keyword:str, captures:dict))
         parsed_stmts = parse(stmts,
             verbose=options.get('PARSE_VERBOSE'))
         if options.get('PRINT_PARSED_STMTS'):
-            print("PARSED STATEMENTS:")
+            print("PARSED STATEMENTS:", file=file)
             for parsed_stmt in parsed_stmts:
-                print(parsed_stmt)
+                print(parsed_stmt, file=file)
 
     if GROUP:
         # group stmts (stick groups of stmts inside other stmt's captures,
         # forming a hierarchy of blocks of code)
         grouped_stmts = group(parsed_stmts,
-            verbose=options.get('GROUP_VERBOSE'))
+            verbose=options.get('GROUP_VERBOSE'), file=file)
         if options.get('PRINT_GROUPED_STMTS'):
-            print("GROUPED STATEMENTS:")
-            print_grouped_stmts(grouped_stmts, 1)
+            print("GROUPED STATEMENTS:", file=file)
+            print_grouped_stmts(grouped_stmts, 1, file=file)
 
     if RUN:
         # run grouped stmts
         runner = Runner(40, 20,
             verbose=options.get('RUN_VERBOSE'),
-            verbose_bools=options.get('VERBOSE_BOOLS'))
+            verbose_bools=options.get('VERBOSE_BOOLS'),
+            file=file)
         report = runner.run(grouped_stmts, toplevel=True)
         if options.get('PRINT_REPORT'):
-            report.print()
+            report.print(file=file)
         if options.get('PRINT_VARS'):
             for var in runner.vars.values():
-                print("{}".format(var))
+                print("{}".format(var), file=file)
 
 
 

@@ -40,9 +40,12 @@ def covers_pattern(s, pat):
 
 class Runner:
 
-    def __init__(self, w=80, h=40, verbose=False, verbose_bools=False):
+    def __init__(self, w=80, h=40, verbose=False, verbose_bools=False,
+            file=None):
+
         self.verbose = verbose
         self.verbose_bools = verbose_bools
+        self.file = file
 
         self.report_title = ''
         self.screen = Screen(w, h)
@@ -210,7 +213,9 @@ class Runner:
         """
         tabs = '  ' * depth
         verbose = self.verbose_bools
-        if verbose: print("{}BOOL EVAL: {}".format(tabs, captures))
+        if verbose:
+            print("{}BOOL EVAL: {}".format(tabs, captures),
+                file=self.file)
 
         # NOTE: result currently needs to be True by default, because
         # ELSE-blocks are implemented as empty captures.
@@ -286,7 +291,9 @@ class Runner:
             raise ValueError("Empty report!")
 
         for i, grouped_stmt in enumerate(grouped_stmts):
-            if verbose: print("{}Running: {}".format(tabs, grouped_stmt))
+            if verbose:
+                print("{}Running: {}".format(tabs, grouped_stmt),
+                    file=self.file)
             keyword, captures = grouped_stmt
 
             if (toplevel and i == 0) != (keyword == 'report'):

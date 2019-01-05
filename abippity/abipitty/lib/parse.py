@@ -56,27 +56,27 @@ def get_keywords():
     return keywords
 
 
-def print_syntax(syntax_part, depth=0):
+def print_syntax(syntax_part, depth=0, file=None):
     tabs = '  ' * depth
     if isinstance(syntax_part, tuple):
         kind = syntax_part[0]
         if kind == '[':
-            print("{}[".format(tabs))
-            print_syntax(syntax_part[1], depth+1)
-            print("{}]".format(tabs))
+            print("{}[".format(tabs), file=file)
+            print_syntax(syntax_part[1], depth+1, file=file)
+            print("{}]".format(tabs), file=file)
         elif kind == '|':
-            print_syntax(syntax_part[1], depth)
-            print("{}|".format(tabs))
-            print_syntax(syntax_part[2], depth)
+            print_syntax(syntax_part[1], depth, file=file)
+            print("{}|".format(tabs), file=file)
+            print_syntax(syntax_part[2], depth, file=file)
         else: raise ValueError("Unexpected kind: {}"
             .format(kind))
     elif isinstance(syntax_part, list):
-        print("{}{}".format(tabs, '{'))
+        print("{}{}".format(tabs, '{'), file=file)
         for syntax in syntax_part:
-            print_syntax(syntax, depth+1)
-        print("{}{}".format(tabs, '}'))
+            print_syntax(syntax, depth+1, file=file)
+        print("{}{}".format(tabs, '}'), file=file)
     else:
-        print("{}{}".format(tabs, syntax_part))
+        print("{}{}".format(tabs, syntax_part), file=file)
 
 
 def parse(stmts, verbose=False, keywords=None):
@@ -99,9 +99,9 @@ def parse(stmts, verbose=False, keywords=None):
             raise ValueError("Invalid keyword: {}".format(keyword))
 
         if verbose:
-            print()
-            print("STMT:   {}".format(stmt))
-            print("SYNTAX: {}".format(syntax))
+            print(file=file)
+            print("STMT:   {}".format(stmt), file=file)
+            print("SYNTAX: {}".format(syntax), file=file)
 
         ok, lexeme_i, captures = parse_stmt(stmt, 0, keywords, syntax,
             verbose=verbose, depth=1)
@@ -111,7 +111,7 @@ def parse(stmts, verbose=False, keywords=None):
             raise ValueError("Couldn't parse stmt: {}".format(stmt))
 
         if verbose:
-            print("CAPTURES: {}".format(captures))
+            print("CAPTURES: {}".format(captures), file=file)
 
         parsed_stmt = (keyword, captures)
         parsed_stmts.append(parsed_stmt)
@@ -129,7 +129,7 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
     tabs = '  ' * depth
     captures = {}
     if verbose: print("{}->{} {}".format(
-        tabs, syntax_part, stmt[lexeme_i:]))
+        tabs, syntax_part, stmt[lexeme_i:]), file=file)
     if isinstance(syntax_part, tuple):
         kind = syntax_part[0]
         if kind == '[':
@@ -223,11 +223,11 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
 
 
 
-def group(parsed_stmts, verbose=False):
+def group(parsed_stmts, verbose=False, file=None):
     grouped_stmts = []
     stack = [] # list of (parsed_stmt, grouped_stmts)
     for parsed_stmt in parsed_stmts:
-        if verbose: print("grouping: {}".format(parsed_stmt))
+        if verbose: print("grouping: {}".format(parsed_stmt), file=file)
         keyword, captures = parsed_stmt
         if keyword == 'if':
             if_parts = [captures.copy()]
@@ -274,23 +274,23 @@ def group(parsed_stmts, verbose=False):
     assertFalse(stack)
     return grouped_stmts
 
-def print_grouped_stmts(grouped_stmts, depth=0):
+def print_grouped_stmts(grouped_stmts, depth=0, file=None):
     tabs = '  ' * depth
     for grouped_stmt in grouped_stmts:
         keyword, captures = grouped_stmt
         if keyword in {'if', 'case'}:
             parts = captures
-            print("{}{}".format(tabs, keyword))
+            print("{}{}".format(tabs, keyword), file=file)
             for part in parts:
                 captures = part.copy()
                 block = captures.pop('block')
-                print("{}->{}".format(tabs, captures))
-                print_grouped_stmts(block, depth+1)
+                print("{}->{}".format(tabs, captures), file=file)
+                print_grouped_stmts(block, depth+1, file=file)
         elif keyword in {'data_begin'}:
             captures = captures.copy()
             block = captures.pop('block')
-            print("{}{} -> {}".format(tabs, keyword, captures))
-            print_grouped_stmts(block, depth+1)
+            print("{}{} -> {}".format(tabs, keyword, captures), file=file)
+            print_grouped_stmts(block, depth+1, file=file)
         else:
-            print("{}{} -> {}".format(tabs, keyword, captures))
+            print("{}{} -> {}".format(tabs, keyword, captures), file=file)
 

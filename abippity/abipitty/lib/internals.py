@@ -66,14 +66,14 @@ class Report:
     def __init__(self, title, screen):
         self.title = title
         self.screen = screen
-    def print(self):
-        print("REPORT: {}".format(self.title.upper()))
+    def print(self, file=None):
+        print("REPORT: {}".format(self.title.upper()), file=file)
         screen = self.screen
         uline = '*' * screen.w
-        print(uline)
+        print(uline, file=file)
         for line in screen.as_lines():
-            print(line)
-        print(uline)
+            print(line, file=file)
+        print(uline, file=file)
 
 
 class Type:
