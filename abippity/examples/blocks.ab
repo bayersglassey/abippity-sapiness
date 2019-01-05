@@ -6,13 +6,13 @@ DATA: A TYPE I VALUE 115,
       WRITE: / 'A is less than B'.
       ENDIF.
 
-DATA: A TYPE I.
-      IF A IS INITIAL.
-      WRITE: / 'A is initial'.
-      ELSEIF A EQ 3.
-      WRITE: / 'A... it''s three!'.
+DATA: C TYPE I.
+      IF C IS INITIAL.
+      WRITE: / 'C is initial'.
+      ELSEIF C EQ 3.
+      WRITE: / 'C... it''s three!'.
       ELSE.
-      WRITE: / 'A is some other thing'.
+      WRITE: / 'C is some other thing'.
       ENDIF.
 
 DATA: P(10) TYPE C VALUE 'APPLE',
