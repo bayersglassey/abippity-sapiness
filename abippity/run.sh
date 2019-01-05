@@ -1,2 +1,2 @@
 #!/bin/sh
-cat examples/simple.ab | ./main.py --run --report $@
+python -m abipitty.main --run --report $@ <examples/simple.ab
