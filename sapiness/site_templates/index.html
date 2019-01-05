@@ -1,9 +1,23 @@
 {% extends "base.html" %}
 
 {% block main %}
-    <h2>Home</h2>
-    <p></p>
-    <ul>
-        <li><a href="{% url 'documents:list' %}">View all documents</a></li>
-    </ul>
+    <h2>What is this</h2>
+    <p><b>Sapiness</b> is a <b>SAP</b> emulator built using Django.</p>
+    <p><b>Abippity</b> is an <b>ABAP</b> interpreter written in Python.</p>
+    <p>
+        <b>SAP</b> (Systems Applications and Products in Data Processing)
+        is an ERP.
+    </p>
+    <p>
+        <b>ABAP</b> (Advanced Business Application Programming) is <b>SAP</b>'s
+        built-in proprietary programming language.
+    </p>
+
+    <h2>What do I do with it</h2>
+    <p>Go look at some existing documents and run them.</p>
+    <p>
+        Create your own document, find an ABAP tutorial,
+        and see how many of its code examples you can copy-paste
+        into this thing and successfully run.
+    </p>
 {% endblock %}

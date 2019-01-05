@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <h2>Abippity command-line arguments</h2>
+    <ul>
+        {% for arg in args %}
+        <li>{{ arg }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -2,9 +2,22 @@
 
 {% block main %}
     <h2>Document: {{ document }}</h2>
+
+    <h3>Contents</h3>
     <pre>{{ document.content }}</pre>
+
+    <h3>Run as Abipitty report</h3>
     <form method="post" action="">
         {% csrf_token %}
+        <p>
+            <label>
+                Command-line arguments to Abipitty interpreter:
+                <br>
+                <input type="text" name="args" value="{{ args }}">
+                <br>
+                <a href="{% url "documents:args_help" %}">Full list of possible arguments</a>
+            </label>
+        </p>
         <button type="submit" name="run">RUN</button>
     </form>
     {% if output %}

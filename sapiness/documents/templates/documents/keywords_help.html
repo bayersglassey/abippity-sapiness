@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <h2>Abippity syntax dump</h2>
+
+    <h3>About the dump</h3>
+    <p>
+        This is the file Abippity is currently using to parse
+        individual commands.
+    </p>
+    <p>
+        Adding support for a new ABAP command starts with adding
+        an entry to this file.
+    </p>
+    <p>
+        It's largely derived from help.sap.com's
+        <a href="https://help.sap.com/doc/abapdocu_750_index_htm/7.50/en-US/abenabap.htm">
+            ABAP - Keyword Documentation
+        </a>
+        and modified to be more directly parsable.
+    </p>
+    <p>It's some kind of pseudo Backus-Naur grammar:</p>
+    <ul>
+        <li>[ ... ] is optional</li>
+        <li>A | B denotes a choice</li>
+        <li>{ ... } is just for grouping</li>
+        <li>Keywords are in UPPERCASE (though ABAP and Abippity are case-insensitive)</li>
+        <li>Capturable variables are in lowercase</li>
+        <li>References to sub-grammars are also in lowercase</li>
+        <li>Boolean captures look like: +var</li>
+        <li>List captures look like: var+</li>
+        <li>Renamed variable captures look like: newname:originalvar</li>
+        <li>&lt;at&gt; is a special symbol matching things like: / /pos /pos(len)</li>
+    </ul>
+    <p>Good luck?</p>
+
+    <h3>The dump</h3>
+    <pre>{{ keywords_dump }}</pre>
+{% endblock %}

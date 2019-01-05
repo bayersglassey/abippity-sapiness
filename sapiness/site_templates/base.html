@@ -4,9 +4,20 @@
 </head>
 <body>
 {% block body %}
-    <h1>Sapiness</h1>
+    <h1>Sapiness &mdash; a SAP emulator</h1>
     <hr>
     {% block main %}{% endblock %}
+    <hr>
+    <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'documents:list' %}">All documents</a></li>
+        <li><a href="{% url 'documents:keywords_help' %}">Dump of current Abipitty syntax</a></li>
+    </ul>
+    <p>
+        Sapiness &amp; Abippity are Copyright 2019 B Ayers-Glassey
+        <br>
+        (SAP and ABAP are not)
+    </p>
 {% endblock %}
 </body>
 </html>
