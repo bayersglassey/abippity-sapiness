@@ -38,76 +38,74 @@ OPTIONS = [
 
 
 def parse_options(args):
-
-    # basic parsing
     options = {}
     for name, arg in OPTIONS:
         options[name] = arg in args
-
-    # option chaining
-    if options['RUN']:
-        options['GROUP'] = True
-    if options['GROUP']:
-        options['PARSE'] = True
-    if options['PARSE']:
-        options['LEX'] = True
-
     return options
 
 
 def main(text, options, keywords=None):
 
+    # option chaining
+    RUN = options.get('RUN')
+    GROUP = RUN or options.get('GROUP')
+    PARSE = GROUP or options.get('PARSE')
+    LEX = PARSE or options.get('RUN')
+
     # get keywords
     if keywords is None: keywords = get_keywords()
-    if options['PRINT_KEYWORDS']:
+    if options.get('PRINT_KEYWORDS'):
         print("KEYWORDS:")
         for keyword, syntax in keywords.items():
             print()
             print("{}:".format(keyword))
             print_syntax(syntax, 1)
 
-    # lex text into stmts
-    if options['LEX']:
+    if LEX:
         # lex text into lexemes
-        lexemes = lex(text, verbose=options['LEX_VERBOSE'],
-            syntax=options['LEX_SYNTAX'])
-        if options['PRINT_LEXEMES']:
+        lexemes = lex(text, verbose=options.get('LEX_VERBOSE'),
+            syntax=options.get('LEX_SYNTAX'))
+        if options.get('PRINT_LEXEMES'):
             for lexeme in lexemes:
                 print(lexeme)
 
-        # get stmts from lexemes
+
+    if PARSE:
+        # get stmts (lists of lexemes representing ABAP commands)
         stmts = to_stmts(lexemes)
-        if options['PRINT_STMTS']:
+        if options.get('PRINT_STMTS'):
             for stmt in stmts:
                 print(stmt)
 
-    # parse & group & run
-    if options['PARSE']:
-        # parse stmts
-        parsed_stmts = parse(stmts, verbose=options['PARSE_VERBOSE'])
-        if options['PRINT_PARSED_STMTS']:
+        # parse stmts (transform lists of lexemes into pairs of
+        # (keyword:str, captures:dict))
+        parsed_stmts = parse(stmts,
+            verbose=options.get('PARSE_VERBOSE'))
+        if options.get('PRINT_PARSED_STMTS'):
             print("PARSED STATEMENTS:")
             for parsed_stmt in parsed_stmts:
                 print(parsed_stmt)
 
-        if options['GROUP']:
-            # group stmts
-            grouped_stmts = group(parsed_stmts,
-                verbose=options['GROUP_VERBOSE'])
-            if options['PRINT_GROUPED_STMTS']:
-                print("GROUPED STATEMENTS:")
-                print_grouped_stmts(grouped_stmts, 1)
+    if GROUP:
+        # group stmts (stick groups of stmts inside other stmt's captures,
+        # forming a hierarchy of blocks of code)
+        grouped_stmts = group(parsed_stmts,
+            verbose=options.get('GROUP_VERBOSE'))
+        if options.get('PRINT_GROUPED_STMTS'):
+            print("GROUPED STATEMENTS:")
+            print_grouped_stmts(grouped_stmts, 1)
 
-            # run grouped stmts
-            if options['RUN']:
-                runner = Runner(40, 20, verbose=options['RUN_VERBOSE'],
-                    verbose_bools=options['VERBOSE_BOOLS'])
-                report = runner.run(grouped_stmts, toplevel=True)
-                if options['PRINT_REPORT']:
-                    report.print()
-                if options['PRINT_VARS']:
-                    for var in runner.vars.values():
-                        print("{}".format(var))
+    if RUN:
+        # run grouped stmts
+        runner = Runner(40, 20,
+            verbose=options.get('RUN_VERBOSE'),
+            verbose_bools=options.get('VERBOSE_BOOLS'))
+        report = runner.run(grouped_stmts, toplevel=True)
+        if options.get('PRINT_REPORT'):
+            report.print()
+        if options.get('PRINT_VARS'):
+            for var in runner.vars.values():
+                print("{}".format(var))
 
 
 
