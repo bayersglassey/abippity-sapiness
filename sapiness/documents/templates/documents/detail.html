@@ -3,4 +3,12 @@
 {% block main %}
     <h2>Document: {{ document }}</h2>
     <pre>{{ document.content }}</pre>
+    <form method="post" action="">
+        {% csrf_token %}
+        <button type="submit" name="run">RUN</button>
+    </form>
+    {% if output %}
+    <h3>Output</h3>
+    <pre>{{ output }}</pre>
+    {% endif %}
 {% endblock %}
