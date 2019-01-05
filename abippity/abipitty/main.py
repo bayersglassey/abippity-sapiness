@@ -1,8 +1,8 @@
 #!/bin/env python
 
 from .lib.lex import lex, to_stmts
-from .lib.parse import (get_keywords, print_syntax, parse, group,
-    print_grouped_stmts)
+from .lib.parse import (get_keywords, parse, group,
+    print_keywords, print_grouped_stmts)
 from .lib.run import Runner
 
 OPTIONS = [
@@ -37,6 +37,12 @@ OPTIONS = [
 
 
 
+def list_args():
+    args = []
+    for name, arg in OPTIONS:
+        args.append(arg)
+    return args
+
 def parse_options(args):
     options = {}
     for name, arg in OPTIONS:
@@ -55,11 +61,7 @@ def main(text, options, keywords=None, file=None):
     # get keywords
     if keywords is None: keywords = get_keywords()
     if options.get('PRINT_KEYWORDS'):
-        print("KEYWORDS:", file=file)
-        for keyword, syntax in keywords.items():
-            print(file=file)
-            print("{}:".format(keyword), file=file)
-            print_syntax(syntax, 1, file=file)
+        print_keywords(keywords, file=file)
 
     if LEX:
         # lex text into lexemes

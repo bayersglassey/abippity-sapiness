@@ -8,10 +8,14 @@ def isidentifier(s):
     return s and all(c == '_' or c.isalnum() for c in s)
 
 
-def get_keywords():
+def get_keywords_text():
     import os
     filepath = os.path.join(os.path.dirname(__file__), 'syntax.txt')
     with open(filepath) as f: text = f.read()
+    return text
+
+def get_keywords():
+    text = get_keywords_text()
     lexemes = lex(text, syntax=True)
     stmts = to_stmts(lexemes, syntax=True)
 
@@ -77,6 +81,14 @@ def print_syntax(syntax_part, depth=0, file=None):
         print("{}{}".format(tabs, '}'), file=file)
     else:
         print("{}{}".format(tabs, syntax_part), file=file)
+
+def print_keywords(keywords=None, file=None):
+    print("KEYWORDS:", file=file)
+    if keywords is None: keywords = get_keywords()
+    for keyword, syntax in keywords.items():
+        print(file=file)
+        print("{}:".format(keyword), file=file)
+        print_syntax(syntax, 1, file=file)
 
 
 def parse(stmts, verbose=False, keywords=None):
