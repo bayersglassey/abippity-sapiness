@@ -11,8 +11,8 @@ class Document(models.Model):
     content = models.TextField("Content")
     user = models.ForeignKey(User, verbose_name="User",
         null=True, blank=True)
-    public_read = models.BooleanField("Public (Readable)", default=False)
-    public_write = models.BooleanField("Public (Writable)", default=False)
+    public_readable = models.BooleanField("Public (Readable)", default=False)
+    public_writable = models.BooleanField("Public (Writable)", default=False)
 
     def __str__(self):
         return self.title
@@ -21,12 +21,14 @@ class Document(models.Model):
         return "<Document {}: {}>".format(self.id, self)
 
     def readable_for_user(self, user):
-        return self.public_read or not self.user or self.user == user
+        return (self.public_readable or self.user == user or
+            user and user.is_superuser)
 
     def writable_for_user(self, user):
 
         # Anonymous users can't modify documents.
         # Somewhat arbitrary. *shrug*
-        if user is None: return False
+        if user is None or not user.is_authenticated: return False
 
-        return self.public_write or not self.user or self.user == user
+        return (self.public_writable or self.user == user or
+            user and user.is_superuser)
