@@ -14,9 +14,20 @@
     </p>
 
     <h2>What do I do with it</h2>
-    <p>Go look at some existing documents and run them.</p>
     <p>
-        Create your own document, find an ABAP tutorial,
+        Go look at the
+        <a href="{% url 'documents:list' %}?owner__username=tutor">example programs</a>
+        and run them.
+    </p>
+    <p>
+        Go look at
+        <a href="{% url 'documents:list' %}">other users' public programs</a>
+        and run them.
+    </p>
+    <p>
+        <a href="{% url 'register' %}">Sign up</a> for a user account,
+        <a href="{% url 'documents:create' %}">create</a> your own program,
+        find an ABAP tutorial,
         and see how many of its code examples you can copy-paste
         into this thing and successfully run.
     </p>
