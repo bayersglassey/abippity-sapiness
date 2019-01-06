@@ -4,7 +4,7 @@
     <h2>
         {% if user and user == owner %}
             My documents
-            (<a href="#TODO">add new</a>)
+            (<a href="{% url 'documents:create' %}">add new</a>)
         {% else %}
             Documents{% if owner %} for user: {{ owner }}{% endif %}
         {% endif %}

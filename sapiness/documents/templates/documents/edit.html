@@ -2,10 +2,14 @@
 
 {% block main %}
     <h2>
-        Editing document: {{ document }}
-        {% if document.user %}
-            (by user:
-            <a href="{% url 'documents:list' %}?owner__username={{ document.user.username }}">{{ document.user }}</a>)
+        {% if document %}
+            Editing document: {{ document }}
+            {% if document.user %}
+                (by user:
+                <a href="{% url 'documents:list' %}?owner__username={{ document.user.username }}">{{ document.user }}</a>)
+            {% endif %}
+        {% else %}
+            Creating document
         {% endif %}
     </h2>
 
