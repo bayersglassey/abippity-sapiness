@@ -10,7 +10,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth import get_user_model
 
 from abipitty.main import main, parse_options, list_args
-from abipitty.lib.parse import get_keywords_text
+from abipitty.parse import get_keywords_text
 
 from .models import Document
 

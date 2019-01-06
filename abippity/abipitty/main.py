@@ -1,9 +1,9 @@
 #!/bin/env python
 
-from .lib.lex import lex, to_stmts
-from .lib.parse import (get_keywords, parse, group,
+from .lex import lex, to_stmts
+from .parse import (get_keywords, parse, group,
     print_keywords, print_grouped_stmts)
-from .lib.run import Runner
+from .run import Runner
 
 OPTIONS = [
     # general
