@@ -2,9 +2,10 @@
 import io
 
 from django.http import HttpResponse
+from django.urls import reverse
 from django.shortcuts import redirect
 from django.db.models import Q
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
 from django.views.generic import TemplateView
 from django.contrib.auth import get_user_model
 
@@ -131,3 +132,11 @@ class DocumentDeleteView(DetailView):
 
         # From DetailView.get:
         return self.render_to_response(context)
+
+
+class DocumentEditView(UpdateView):
+    model = Document
+    fields = ['title', 'content', 'public_readable', 'public_writable']
+    template_name = 'documents/edit.html'
+    def get_success_url(self):
+        return reverse('documents:detail', kwargs={'pk': self.object.pk})
