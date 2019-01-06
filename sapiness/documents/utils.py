@@ -42,6 +42,7 @@ def update_example_docs(**kwargs):
         kwargs['user'] = user
 
     if 'unique' not in kwargs: kwargs['unique'] = True
+    if 'public_readable' not in kwargs: kwargs['public_readable'] = True
 
     fileglob = os.path.join(settings.BASE_DIR, os.path.pardir,
         'abippity', 'examples', '*.ab')
