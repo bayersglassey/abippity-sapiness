@@ -2,6 +2,7 @@
 import io
 
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.db.models import Q
 from django.views.generic import ListView, DetailView
 from django.views.generic import TemplateView
@@ -113,3 +114,20 @@ class DocumentDetailView(DetailView):
         output = output_io.read()
 
         return output
+
+
+class DocumentDeleteView(DetailView):
+    model = Document
+    template_name = 'documents/delete.html'
+    def dispatch(self, request, *args, **kwargs):
+        # From DetailView.get:
+        doc = self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        # User clicks "Yes, I want to delete it":
+        if 'delete' in request.POST:
+            doc.delete()
+            return redirect('home')
+
+        # From DetailView.get:
+        return self.render_to_response(context)

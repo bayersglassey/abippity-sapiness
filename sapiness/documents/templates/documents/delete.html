@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <h2>Deleting document: {{ document }}</h2>
+
+    <h3>Are you sure you want to delete it?</h3>
+    <form method="post" action="">
+        {% csrf_token %}
+        <p><a href="{% url 'documents:detail' document.pk %}">No thanks, take me back to the document</a></p>
+        <p><button type="submit" name="delete">Yes, delete it</button></p>
+    </form>
+{% endblock %}

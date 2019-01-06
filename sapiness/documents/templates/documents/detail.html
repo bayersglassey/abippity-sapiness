@@ -13,7 +13,7 @@
         [<a href="#TODO">Copy</a>]
         {% if writable %}
             [<a href="#TODO">Edit</a>]
-            [<a href="#TODO">Delete</a>]
+            [<a href="{% url 'documents:delete' document.pk %}">Delete</a>]
         {% endif %}
     </h3>
 
