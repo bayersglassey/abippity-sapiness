@@ -1,12 +1,26 @@
 {% extends "base.html" %}
 
 {% block main %}
-    <h2>Document: {{ document }}</h2>
+    <h2>
+        Document: {{ document }}
+        {% if document.user %}
+            (by user:
+            <a href="{% url 'documents:list' %}?owner__username={{ document.user.username }}">{{ document.user }}</a>)
+        {% endif %}
+    </h2>
+
+    <h3>
+        [<a href="#TODO">Copy</a>]
+        {% if writable %}
+            [<a href="#TODO">Edit</a>]
+            [<a href="#TODO">Delete</a>]
+        {% endif %}
+    </h3>
 
     <h3>Contents</h3>
     <pre>{{ document.content }}</pre>
 
-    <h3>Run as Abipitty report</h3>
+    <h3>Run with Abipitty</h3>
     <form method="post" action="">
         {% csrf_token %}
         <p>
@@ -20,6 +34,7 @@
         </p>
         <button type="submit" name="run">RUN</button>
     </form>
+
     {% if output %}
     <h3>Output</h3>
     <pre>{{ output }}</pre>

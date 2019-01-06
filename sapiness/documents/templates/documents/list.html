@@ -1,10 +1,28 @@
 {% extends "base.html" %}
 
 {% block main %}
-    <h2>Documents{% if owner %} for user: {{ owner }}{% endif %}</h2>
+    <h2>
+        {% if user and user == owner %}
+            My documents
+            (<a href="#TODO">add new</a>)
+        {% else %}
+            Documents{% if owner %} for user: {{ owner }}{% endif %}
+        {% endif %}
+    </h2>
+
+    {% if owner and owner.username == 'tutor' %}
+        <h3>(Example Abippity programs)<h3>
+    {% endif %}
+
     <ul>
         {% for document in document_list %}
-        <li><a href="{% url 'documents:detail' document.pk %}">{{ document }}</a></li>
+        <li>
+            <a href="{% url 'documents:detail' document.pk %}">{{ document }}</a>
+            {% if not owner and document.user %}
+                (by user:
+                <a href="{% url 'documents:list' %}?owner__username={{ document.user.username }}">{{ document.user }}</a>)
+            {% endif %}
+        </li>
         {% endfor %}
     </ul>
 {% endblock %}

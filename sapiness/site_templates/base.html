@@ -6,14 +6,35 @@
 {% block body %}
     <h1>Sapiness &mdash; a SAP emulator</h1>
     <hr>
+
     {% block main %}{% endblock %}
     <hr>
+
+    {% if user and user.is_authenticated %}
+        <h3>
+            Logged in as user:
+            <a href="{% url 'documents:list' %}?owner__username={{ user.username }}">{{ user.username }}</a>
+        </h3>
+        <ul>
+            <li><a href="{% url 'documents:list' %}?owner__username={{ user.username }}">See your documents</a></li>
+            <li><a href="#TODO">Log out</a></li>
+        </ul>
+    {% else %}
+        <h3>Not logged in.</h3>
+        <ul>
+            <li><a href="#TODO">Log in</a></li>
+        </ul>
+    {% endif %}
+
+    <h3>Site navigation:</h3>
     <ul>
         <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'documents:list' %}?owner__username=tutor">Example documents</a></li>
-        <li><a href="{% url 'documents:list' %}">All documents</a></li>
+        <li><a href="{% url 'documents:list' %}?owner__username=tutor">Example Abippity programs</a></li>
+        <li><a href="{% url 'documents:list' %}">All public documents</a></li>
         <li><a href="{% url 'documents:keywords_help' %}">Dump of current Abipitty syntax</a></li>
     </ul>
+
+    <hr>
     <p>
         Sapiness &amp; Abippity are Copyright 2019 B Ayers-Glassey
         <br>

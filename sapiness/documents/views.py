@@ -2,6 +2,7 @@
 import io
 
 from django.http import HttpResponse
+from django.db.models import Q
 from django.views.generic import ListView, DetailView
 from django.views.generic import TemplateView
 from django.contrib.auth import get_user_model
@@ -40,10 +41,15 @@ class DocumentListView(ListView):
             context['owner'] = owner
         return context
     def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated: user = None
         queryset = super().get_queryset()
-        username = self.request.GET.get('owner__username')
-        if username is not None:
-            queryset = queryset.filter(user__username=username)
+        owner_username = self.request.GET.get('owner__username')
+        if owner_username is not None:
+            queryset = queryset.filter(user__username=owner_username)
+        if not user or not user.is_superuser:
+            queryset = queryset.filter(
+                Q(public_readable=True) | Q(user=user))
         return queryset
 
 class DocumentDetailView(DetailView):
@@ -53,6 +59,7 @@ class DocumentDetailView(DetailView):
     def get_context_data(self, object):
         context = super().get_context_data(object=object)
         context['args'] = '--run --report'
+        context['writable'] = object.writable_for_user(self.request.user)
         return context
 
     def dispatch(self, request, *args, **kwargs):
