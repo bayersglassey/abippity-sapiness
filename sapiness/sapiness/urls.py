@@ -16,13 +16,27 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.conf import settings
 from django.contrib import admin
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, CreateView
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 
 class HomeView(TemplateView):
     template_name = 'index.html'
 
+class RegisterView(CreateView):
+    form_class = UserCreationForm
+    template_name = 'registration/register.html'
+    success_url = '/'
+    def form_valid(self, form):
+        _return = super().form_valid(form)
+        login(self.request, self.object)
+        return _return
+
+
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^', include('django.contrib.auth.urls')),
+    url(r'^register/?$', RegisterView.as_view(), name='register'),
     url(r'^documents/', include('documents.urls', namespace='documents')),
     url(r'^admin/', admin.site.urls),
 ]
