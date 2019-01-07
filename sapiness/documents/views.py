@@ -9,8 +9,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic import TemplateView
 from django.contrib.auth import get_user_model
 
-from abipitty.main import main, parse_options, list_args
-from abipitty.parse import get_keywords_text
+from abippity.main import main, parse_options, list_args
+from abippity.parse import get_keywords_text
 
 from .models import Document
 
@@ -77,7 +77,7 @@ class DocumentDetailView(DetailView):
 
         # User clicks "RUN":
         if 'run' in request.POST:
-            # Get args from POST, parse as abipitty options
+            # Get args from POST, parse as abippity options
             args_text = request.POST.get('args', '')
             args = args_text.split()
             options = parse_options(args)
@@ -94,12 +94,12 @@ class DocumentDetailView(DetailView):
     def run(self, text, options):
         """Wrapper around abippity.main, returning its output as a str"""
 
-        # Hack, abipitty.main just uses print statements with file=file,
+        # Hack, abippity.main just uses print statements with file=file,
         # we pass it a StringIO as file in order to get text we can
         # stuff into the response...
         output_io = io.StringIO()
 
-        # Run abipitty interpreter
+        # Run abippity interpreter
         try:
             main(text, options, file=output_io)
         except (ValueError, TypeError, AssertionError) as e:
@@ -109,7 +109,7 @@ class DocumentDetailView(DetailView):
             msg = "*** ERROR: {}".format(e)
             output_io.write(msg)
 
-        # Read the output of abipitty.main, stick it in the context to
+        # Read the output of abippity.main, stick it in the context to
         # be rendered
         output_io.seek(0)
         output = output_io.read()

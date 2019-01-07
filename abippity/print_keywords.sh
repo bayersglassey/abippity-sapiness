@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "" | python -m abipitty.main --keywords
+echo "" | python -m abippity.main --keywords

@@ -1,2 +1,2 @@
 #!/bin/sh
-python -m abipitty.main --run --report $@ <examples/simple.ab
+python -m abippity.main --run --report $@ <examples/simple.ab

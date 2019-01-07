@@ -1,2 +1,2 @@
 #!/bin/sh
-python -m abipitty.main --parse --parsed-stmts $@ <examples/simple.ab
+python -m abippity.main --parse --parsed-stmts $@ <examples/simple.ab
