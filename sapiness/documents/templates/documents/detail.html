@@ -10,7 +10,7 @@
     </h2>
 
     <h3>
-        [<a href="#TODO">Copy</a>]
+        [<a href="{% url 'documents:create' %}?copy_id={{ document.id }}">Copy</a>]
         {% if writable %}
             [<a href="{% url 'documents:edit' document.pk %}">Edit</a>]
             [<a href="{% url 'documents:delete' document.pk %}">Delete</a>]

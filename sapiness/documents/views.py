@@ -143,6 +143,16 @@ class DocumentEditViewMixin:
 
 class DocumentEditView(DocumentEditViewMixin, UpdateView): pass
 class DocumentCreateView(DocumentEditViewMixin, CreateView):
+    def get_initial(self):
+        initial = super().get_initial()
+
+        copy_id = self.request.GET.get('copy_id')
+        copy_doc = Document.objects.filter(id=copy_id).first()
+        if copy_doc is not None:
+            initial['title'] = "{} (Copy)".format(copy_doc.title)
+            initial['content'] = copy_doc.content
+
+        return initial
     def form_valid(self, form):
         doc = form.save(commit=False)
         user = self.request.user
