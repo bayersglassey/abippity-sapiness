@@ -43,15 +43,13 @@ class DocumentListView(ListView):
             context['owner'] = owner
         return context
     def get_queryset(self):
+        owner_username = self.request.GET.get('owner__username')
         user = self.request.user
         if not user.is_authenticated: user = None
         queryset = super().get_queryset()
-        owner_username = self.request.GET.get('owner__username')
         if owner_username is not None:
             queryset = queryset.filter(user__username=owner_username)
-        if not user or not user.is_superuser:
-            queryset = queryset.filter(
-                Q(public_readable=True) | Q(user=user))
+        queryset = Document.filter_readable(queryset, user=user)
         return queryset
 
 class DocumentDetailView(DetailView):
@@ -125,6 +123,12 @@ class DocumentDeleteView(DetailView):
         doc = self.object = self.get_object()
         context = self.get_context_data(object=self.object)
 
+        # Make sure user is allowed to delete the document:
+        if not doc.writable_for_user(request.user):
+            msg = ("You don't have permission to delete this "
+                "document: {}".format(doc.title))
+            return HttpResponse(msg, status=403)
+
         # User clicks "Yes, I want to delete it":
         if 'delete' in request.POST:
             doc.delete()
@@ -138,6 +142,16 @@ class DocumentEditViewMixin:
     model = Document
     fields = ['title', 'content', 'public_readable', 'public_writable']
     template_name = 'documents/edit.html'
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            public_readable = form.fields['public_readable']
+            public_writable = form.fields['public_writable']
+            for field in [public_readable, public_writable]:
+                field.initial = True
+                field.disabled = True
+        return form
     def get_success_url(self):
         return reverse('documents:detail', kwargs={'pk': self.object.pk})
 

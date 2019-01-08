@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 from django.contrib.auth import get_user_model
 
@@ -20,15 +21,27 @@ class Document(models.Model):
     def __repr__(self):
         return "<Document {}: {}>".format(self.id, self)
 
-    def readable_for_user(self, user):
-        return (self.public_readable or self.user == user or
-            user and user.is_superuser)
+    def readable_for_user(self, user=None):
+        if user and user.is_superuser: return True
+        return self.public_readable or self.user and self.user == user
 
-    def writable_for_user(self, user):
+    def writable_for_user(self, user=None):
+        if user and user.is_superuser: return True
+        return self.public_writable or self.user and self.user == user
 
-        # Anonymous users can't modify documents.
-        # Somewhat arbitrary. *shrug*
-        if user is None or not user.is_authenticated: return False
+    @staticmethod
+    def filter_readable(queryset, user=None):
+        # model managers? feh
+        if user and user.is_superuser: return queryset
+        q = Q(public_readable=True)
+        if user: q |= Q(user=user)
+        return queryset.filter(q)
 
-        return (self.public_writable or self.user == user or
-            user and user.is_superuser)
+    @staticmethod
+    def filter_writable(queryset, user=None):
+        # model managers? feh
+        if user and user.is_superuser: return queryset
+        q = Q(public_writable=True)
+        if user: q |= Q(user=user)
+        return queryset.filter(q)
+
