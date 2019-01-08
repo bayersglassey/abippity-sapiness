@@ -16,6 +16,15 @@
     <form method="post" action="">
         {% csrf_token %}
         {{ form.as_p }}
+        {% if not user or not user.is_authenticated %}
+        <p>
+            NOTE: Anonymous users can only make public documents.
+            You'll need to
+            <a href="{% url 'login' %}">sign in</a> or
+            <a href="{% url 'register' %}">sign up</a>
+            in order to make private documents.
+        </p>
+        {% endif %}
         <button type="submit" name="save">Save</button>
     </form>
 {% endblock %}

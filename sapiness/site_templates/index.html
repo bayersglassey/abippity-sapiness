@@ -25,10 +25,19 @@
         and run them.
     </p>
     <p>
-        <a href="{% url 'register' %}">Sign up</a> for a user account,
-        <a href="{% url 'documents:create' %}">create</a> your own program,
+        Try making a copy of a program and making changes to it.
+        (There's a [Copy] link at the top of every document.)
+    </p>
+    <p>
+        <a href="{% url 'documents:create' %}">Create</a> your own program,
         find an ABAP tutorial,
         and see how many of its code examples you can copy-paste
         into this thing and successfully run.
+    </p>
+    <p>
+        <a href="{% url 'login' %}">Sign in</a> or
+        <a href="{% url 'register' %}">sign up</a> for a user account,
+        so you can make your documents (programs) private.
+        (Anonymous users' documents can be changed by anybody.)
     </p>
 {% endblock %}
