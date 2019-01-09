@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 scp uwsgi/sapiness.ini root@$IP:/etc/uwsgi.d/
 echo "Stopping uwsgi..."
