@@ -91,7 +91,7 @@ def print_keywords(keywords=None, file=None):
         print_syntax(syntax, 1, file=file)
 
 
-def parse(stmts, verbose=False, keywords=None):
+def parse(stmts, verbose=False, keywords=None, file=None):
     if keywords is None: keywords = get_keywords()
     parsed_stmts = []
 
@@ -116,7 +116,7 @@ def parse(stmts, verbose=False, keywords=None):
             print("SYNTAX: {}".format(syntax), file=file)
 
         ok, lexeme_i, captures = parse_stmt(stmt, 0, keywords, syntax,
-            verbose=verbose, depth=1)
+            verbose=verbose, depth=1, file=file)
         if lexeme_i < len(stmt):
             raise ValueError("Couldn't parse entire stmt: {}".format(stmt))
         if not ok:
@@ -131,7 +131,7 @@ def parse(stmts, verbose=False, keywords=None):
     return parsed_stmts
 
 def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
-        verbose=False, depth=0):
+        verbose=False, depth=0, file=None):
     """Returns (ok, lexeme_i, captures) where:
         ok - bool indicating whether stmt matches syntax
         lexeme_i - index in stmt of next lexeme
@@ -148,7 +148,7 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
             sub_syntax = syntax_part[1]
             ok, new_lexeme_i, sub_captures = parse_stmt(
                 stmt, lexeme_i, keywords,
-                sub_syntax, verbose, depth+1)
+                sub_syntax, verbose, depth+1, file=file)
             if ok:
                 lexeme_i = new_lexeme_i
                 captures.update(sub_captures)
@@ -157,21 +157,21 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
             sub_syntax_b = syntax_part[2]
             ok, new_lexeme_i, sub_captures = parse_stmt(
                 stmt, lexeme_i, keywords,
-                sub_syntax_a, verbose, depth+1)
+                sub_syntax_a, verbose, depth+1, file=file)
             if ok:
                 lexeme_i = new_lexeme_i
                 captures.update(sub_captures)
             else:
                 return parse_stmt(
                     stmt, lexeme_i, keywords,
-                    sub_syntax_b, verbose, depth+1)
+                    sub_syntax_b, verbose, depth+1, file=file)
         else: raise ValueError("Unexpected kind: {}"
             .format(kind))
     elif isinstance(syntax_part, list):
         for sub_syntax in syntax_part:
             ok, lexeme_i, sub_captures = parse_stmt(
                 stmt, lexeme_i, keywords,
-                sub_syntax, verbose, depth+1)
+                sub_syntax, verbose, depth+1, file=file)
             if not ok: return False, lexeme_i, captures
             captures.update(sub_captures)
     elif syntax_part[:1] == '+' and isidentifier(syntax_part[1:]):
@@ -217,7 +217,7 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
             while True:
                 ok, new_lexeme_i, sub_captures = parse_stmt(
                     stmt, lexeme_i, keywords,
-                    sub_syntax, verbose, depth+1)
+                    sub_syntax, verbose, depth+1, file=file)
                 if ok and sub_captures:
                     lexeme_i = new_lexeme_i
                     many_captures.append(sub_captures)
@@ -227,7 +227,7 @@ def parse_stmt(stmt, lexeme_i, keywords, syntax_part,
             sub_syntax = keywords[syntax_part]
             ok, lexeme_i, sub_captures = parse_stmt(
                 stmt, lexeme_i, keywords,
-                sub_syntax, verbose, depth+1)
+                sub_syntax, verbose, depth+1, file=file)
             if not ok: return False, lexeme_i, captures
             if is_named: captures[capture_name] = sub_captures
             else: captures.update(sub_captures)

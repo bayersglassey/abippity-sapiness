@@ -1,7 +1,7 @@
 
 
 
-def lex(text, verbose=False, syntax=False):
+def lex(text, verbose=False, syntax=False, file=None):
     state = 'newline'
     lexemes = []
     lexeme = ''
@@ -12,9 +12,9 @@ def lex(text, verbose=False, syntax=False):
         SINGLE_CHAR_LEXEMES = '.,:'
 
     for i, c in enumerate(text):
-        if verbose: print('{}'.format(repr(c)))
+        if verbose: print('{}'.format(repr(c)), file=file)
         while True:
-            if verbose: print('  {}'.format(state))
+            if verbose: print('  {}'.format(state), file=file)
             if state == 'newline':
                 if c == '*': state = 'eat_comment'
                 else: state = 'eat_whitespace'; continue

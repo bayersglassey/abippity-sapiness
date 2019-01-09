@@ -1,9 +1,9 @@
 #!/bin/env python
 
-from .lex import lex, to_stmts
-from .parse import (get_keywords, parse, group,
+from abippity.lex import lex, to_stmts
+from abippity.parse import (get_keywords, parse, group,
     print_keywords, print_grouped_stmts)
-from .run import Runner
+from abippity.run import Runner
 
 OPTIONS = [
     # general
@@ -66,7 +66,7 @@ def main(text, options, keywords=None, file=None):
     if LEX:
         # lex text into lexemes
         lexemes = lex(text, verbose=options.get('LEX_VERBOSE'),
-            syntax=options.get('LEX_SYNTAX'))
+            syntax=options.get('LEX_SYNTAX'), file=file)
         if options.get('PRINT_LEXEMES'):
             for lexeme in lexemes:
                 print(lexeme, file=file)
@@ -82,7 +82,7 @@ def main(text, options, keywords=None, file=None):
         # parse stmts (transform lists of lexemes into pairs of
         # (keyword:str, captures:dict))
         parsed_stmts = parse(stmts,
-            verbose=options.get('PARSE_VERBOSE'))
+            verbose=options.get('PARSE_VERBOSE'), file=file)
         if options.get('PRINT_PARSED_STMTS'):
             print("PARSED STATEMENTS:", file=file)
             for parsed_stmt in parsed_stmts:
