@@ -280,6 +280,18 @@ def group(parsed_stmts, verbose=False, file=None):
             data_captures['block'] = grouped_stmts
             grouped_stmts = prev_grouped_stmts
             grouped_stmts.append(data_stmt)
+        elif keyword in {'while', 'do'}:
+            new_stmt = (keyword, captures.copy())
+            stack.append((new_stmt, grouped_stmts))
+            grouped_stmts = []
+        elif keyword in {'endwhile', 'enddo'}:
+            new_stmt, prev_grouped_stmts = stack.pop()
+            new_keyword, new_captures = new_stmt
+            assertEqual(new_keyword,
+                {'endwhile': 'while', 'enddo': 'do'}[keyword])
+            new_captures['block'] = grouped_stmts
+            grouped_stmts = prev_grouped_stmts
+            grouped_stmts.append(new_stmt)
         else:
             grouped_stmt = parsed_stmt
             grouped_stmts.append(grouped_stmt)
@@ -298,7 +310,7 @@ def print_grouped_stmts(grouped_stmts, depth=0, file=None):
                 block = captures.pop('block')
                 print("{}->{}".format(tabs, captures), file=file)
                 print_grouped_stmts(block, depth+1, file=file)
-        elif keyword in {'data_begin'}:
+        elif 'block' in captures:
             captures = captures.copy()
             block = captures.pop('block')
             print("{}{} -> {}".format(tabs, keyword, captures), file=file)

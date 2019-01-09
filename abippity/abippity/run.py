@@ -38,6 +38,10 @@ def covers_pattern(s, pat):
     return re.fullmatch(pat, s) is not None
 
 
+class LoopExit(Exception): pass
+class LoopContinue(Exception): pass
+
+
 class Runner:
 
     def __init__(self, w=80, h=40, verbose=False, verbose_bools=False,
@@ -357,6 +361,30 @@ class Runner:
                         block = part['block']
                         self.run(block, depth+1)
                         break
+            elif keyword in {'while', 'do'}:
+                block = captures['block']
+                n = None
+                if 'n' in captures:
+                    n_value = self.parse_value(captures['n'])
+                    assertTrue(n_value.is_numeric())
+                    n = n_value.data
+                i = 0
+                while True:
+                    if keyword == 'while':
+                        cond = self.eval_bool(captures, depth+1)
+                        if not cond: break
+                    elif n is not None:
+                        if i >= n: break
+                        i += 1
+                    try:
+                        self.run(block, depth+1)
+                    except LoopExit: break
+                    except LoopContinue: continue
+            elif keyword == 'continue': raise LoopContinue()
+            elif keyword == 'exit': raise LoopExit()
+            elif keyword == 'check':
+                cond = self.eval_bool(captures, depth+1)
+                if not cond: raise LoopExit()
             elif keyword == 'write':
                 at = captures.get('at')
                 newline = at and at.startswith('/')

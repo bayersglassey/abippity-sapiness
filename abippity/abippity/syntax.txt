@@ -144,3 +144,15 @@ ADD dobj1 TO dobj2.
 SUBTRACT dobj1 FROM dobj2.
 MULTIPLY dobj1 BY dobj2.
 DIVIDE dobj1 BY dobj2.
+
+
+WHILE log_exp.
+ENDWHILE.
+
+DO [n TIMES].
+ENDDO.
+
+EXIT.
+CONTINUE.
+CHECK log_exp.
+
