@@ -19,9 +19,9 @@ I don't think they meant for their grammar be used directly by an interpreter,
 but with some minor modifications I was able to make it work...
 
 
-# SAPINESS "SCREENSHOT"
+# EXAMPLE OUTPUT
 
-Here are the results of running [loops.abap](/abippity/examples/loops.abap):
+Here is the result of running [loops.abap](/abippity/examples/loops.abap):
 
     REPORT: ZLOOPS
     ****************************************
@@ -47,6 +47,8 @@ Here are the results of running [loops.abap](/abippity/examples/loops.abap):
                                             
     ****************************************
 
+In vain do you attempt to conceal your excitement.
+
 
 # HOW TO USE ABIPPITY
 
@@ -63,8 +65,6 @@ are [included in the repo](/abippity/examples/).
 
 Most of the documentation is actually in Sapiness itself:
 [index.html](/sapiness/site_templates/index.html)
-
-I'm proud to say no CSS or Javascript is used at all.
 
 I was running this at [sapiness.bayersglassey.com](http://sapiness.bayersglassey.com)
 for a while, but have probably taken it down by now.
@@ -85,3 +85,11 @@ To run it yourself:
 instructions are probably not complete.
 If you are the kind of person who wants to run a SAP emulator in Django,
 I'm sure you'll figure out how to make it happen.
+
+
+# SAPINESS SCREENSHOT
+
+I'm proud to say no CSS or Javascript is used at all.
+
+![](/screenshots/document.png)
+![](/screenshots/output.png)
