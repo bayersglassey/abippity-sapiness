@@ -45,5 +45,5 @@ def update_example_docs(**kwargs):
     if 'public_readable' not in kwargs: kwargs['public_readable'] = True
 
     fileglob = os.path.join(settings.BASE_DIR, os.path.pardir,
-        'abippity', 'examples', '*.ab')
+        'abippity', 'examples', '*.abap')
     return create_docs_from_glob(fileglob, **kwargs)
