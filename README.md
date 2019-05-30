@@ -19,6 +19,35 @@ I don't think they meant for their grammar be used directly by an interpreter,
 but with some minor modifications I was able to make it work...
 
 
+# SAPINESS "SCREENSHOT"
+
+Here are the results of running [loops.abap](/abippity/examples/loops.abap):
+
+    REPORT: ZLOOPS
+    ****************************************
+    x: 0                                    
+      y: 0                                  
+      y: 1                                  
+      y: 2                                  
+      y: 3                                  
+    x: 1                                    
+    x: 2                                    
+      y: 0                                  
+      y: 1                                  
+      y: 2                                  
+      y: 3                                  
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+    ****************************************
+
+
 # HOW TO USE ABIPPITY
 
 You can run example files from the command line using [main.py](/abippity/abippity/main.py).
@@ -34,6 +63,8 @@ are [included in the repo](/abippity/examples/).
 
 Most of the documentation is actually in Sapiness itself:
 [index.html](/sapiness/site_templates/index.html)
+
+I'm proud to say no CSS or Javascript is used at all.
 
 I was running this at [sapiness.bayersglassey.com](http://sapiness.bayersglassey.com)
 for a while, but have probably taken it down by now.
